@@ -1,29 +1,29 @@
-# 🚀 AI-Powered Personalized Learning Platform
+#  AI-Powered Personalized Learning Platform
 
 An intelligent full-stack EdTech system that detects hidden student knowledge gaps and delivers personalized, adaptive, and explainable learning experiences using **Machine Learning, Knowledge Graphs, and NLP**.
 
 ---
 
-## 📌 Project Overview
+##  Project Overview
 
 Traditional learning systems follow a **one-size-fits-all approach** and fail to identify concept-level knowledge gaps.
 
 This platform applies **Artificial Intelligence and Machine Learning** to:
 
-- ✅ Detect unseen knowledge gaps  
-- ✅ Personalize learning paths  
-- ✅ Recommend adaptive content  
-- ✅ Generate smart quizzes  
-- ✅ Provide explainable AI-driven suggestions  
-- ✅ Support learners with a conversational tutor  
+-  Detect unseen knowledge gaps  
+-  Personalize learning paths  
+-  Recommend adaptive content  
+-  Generate smart quizzes  
+-  Provide explainable AI-driven suggestions  
+-  Support learners with a conversational tutor  
 
-🎓 Developed as a **B.Tech AIML Mini Project – GLA University**
+ Developed as a **B.Tech AIML Mini Project – GLA University**
 
 ---
 
-## 🧠 Core Features
+##  Core Features
 
-### 🔐 Authentication
+###  Authentication
 
 - Secure student registration & login  
 - Google OAuth 2.0 social login  
@@ -31,7 +31,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 🧩 Knowledge Modeling
+###  Knowledge Modeling
 
 - Knowledge Graph modeling of domain concepts  
 - Prerequisite relationship mapping  
@@ -39,7 +39,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 📊 Knowledge Gap Detection (Machine Learning)
+###  Knowledge Gap Detection (Machine Learning)
 
 - Bayesian Knowledge Tracing / Mastery Model  
 - Concept-level probability estimation  
@@ -47,7 +47,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 🔄 Adaptive Learning Engine
+###  Adaptive Learning Engine
 
 - Dynamic concept sequencing  
 - Personalized difficulty adjustment  
@@ -55,7 +55,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 🎯 AI-Powered Recommendations
+###  AI-Powered Recommendations
 
 - Content ranking based on knowledge gaps  
 - Hybrid ML + rule-based recommender  
@@ -63,7 +63,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 📝 Smart Quiz Generator
+###  Smart Quiz Generator
 
 - ML-based question difficulty classification  
 - Weak-concept targeting  
@@ -71,7 +71,7 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 🤖 TutorVoice (Conversational AI)
+###  TutorVoice (Conversational AI)
 
 - Text-based AI assistant  
 - Concept explanations  
@@ -79,25 +79,25 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-### 📘 NoteFlow
+###  NoteFlow
 
 - AI-generated personalized notes  
 - Concept flow summaries  
 
 ---
 
-### 🔁 MemoryBoost
+###  MemoryBoost
 
 - Microlearning approach  
 - Spaced repetition scheduling (1–3–7 day cycle)  
 
 ---
 
-## 🏗 System Architecture\
+##  System Architecture\
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |--------|------------|
@@ -113,9 +113,9 @@ This platform applies **Artificial Intelligence and Machine Learning** to:
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
-### 1️⃣ Clone Repository
+###  Clone Repository
 
 ```bash
 git clone https://github.com/your-username/ai-personalized-learning.git
@@ -127,6 +127,5 @@ cd frontend
 npm install
 npm start
 
-## 📂 Project Structure
 
 
