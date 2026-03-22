@@ -23,13 +23,13 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="relative z-10 w-full max-w-md border-0 bg-login-card text-login-card-foreground shadow-xl">
+    <Card className="glass relative z-10 w-full max-w-md border border-white/10 text-login-card-foreground shadow-2xl">
       <CardHeader className="items-center text-center">
-        <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+        <div className="flex size-12 items-center justify-center rounded-xl bg-primary/20 text-primary neon-ring">
           <BookOpen className="size-6" />
         </div>
-        <CardTitle className="mt-2 text-2xl font-bold tracking-tight">
-          AI Personalized Learning
+        <CardTitle className="mt-2 text-2xl font-semibold tracking-tight">
+          <span className="gradient-text">AI Personalized Learning</span>
         </CardTitle>
         <CardDescription className="text-muted-foreground">
           Sign in to access your personalized dashboard
@@ -43,7 +43,7 @@ export function LoginForm() {
               id="email"
               type="email"
               placeholder="student@university.edu"
-              className="h-10 rounded-lg"
+              className="h-11 rounded-xl border-white/10 bg-white/5"
               suppressHydrationWarning
             />
           </div>
@@ -53,13 +53,13 @@ export function LoginForm() {
               id="password"
               type="password"
               placeholder="Enter your password"
-              className="h-10 rounded-lg"
+              className="h-11 rounded-xl border-white/10 bg-white/5"
               suppressHydrationWarning
             />
           </div>
           <Button
             type="submit"
-            className="h-10 w-full rounded-lg text-sm font-semibold"
+            className="neon-ring h-11 w-full rounded-xl text-sm font-semibold"
             size="lg"
             suppressHydrationWarning
           >
@@ -75,7 +75,7 @@ export function LoginForm() {
 
         <Button
           variant="outline"
-          className="h-10 w-full rounded-lg text-sm font-medium"
+          className="h-11 w-full rounded-xl border-white/10 bg-white/5 text-sm font-medium"
           size="lg"
           onClick={() => router.push("/dashboard")}
           suppressHydrationWarning
