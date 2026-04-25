@@ -116,7 +116,20 @@ async def generate_quiz(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generate adaptive quiz questions"""
+    """Generate adaptive quiz questions with validation"""
+    # Validate inputs
+    if not topic or len(topic.strip()) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Topic name cannot be empty"
+        )
+    
+    if count < 1 or count > 50:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Question count must be between 1 and 50"
+        )
+    
     if topic not in QUIZ_BANK:
         raise HTTPException(status_code=404, detail=f"Topic '{topic}' not found")
     
