@@ -13,9 +13,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useEffect, useState } from "react"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
+
+interface UserData {
+  id: number
+  email: string
+  name: string
+  role: string
+}
 
 export function DashboardNavbar() {
   const pathname = usePathname()
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [userName, setUserName] = useState("User")
+  
   const links = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Subjects", href: "/subjects" },
@@ -23,6 +36,46 @@ export function DashboardNavbar() {
     { label: "Progress", href: "/result" },
     { label: "Profile", href: "/profile" },
   ]
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("access_token")
+        if (!token) return
+
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setUserData(data)
+          setUserName(data.name || "User")
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err)
+        setUserName("User")
+      }
+    }
+
+    fetchUserData()
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("user_data")
+    window.location.href = "/"
+  }
+
+  const userInitials = userName
+    .split(" ")
+    .map(n => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-card/40 backdrop-blur-xl">
@@ -98,23 +151,22 @@ export function DashboardNavbar() {
           <div className="flex items-center gap-2.5">
             <Avatar className="size-9 border border-white/10 bg-card/60">
               <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
-                JS
+                {userInitials}
               </AvatarFallback>
             </Avatar>
             <span className="hidden text-sm font-medium text-foreground sm:inline">
-              Jane Smith
+              {userName}
             </span>
           </div>
-          <Link href="/">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="size-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-          </Link>
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="size-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </Button>
         </div>
       </nav>
     </header>
