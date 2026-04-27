@@ -253,6 +253,87 @@ async def reactivate_user(
     
     return {"message": f"User {user.name} reactivated"}
 
+@router.get("/users")
+async def get_all_users(
+    admin_user: User = Depends(require_admin),
+    skip: int = 0,
+    limit: int = 50,
+    search: str = "",
+    db: Session = Depends(get_db)
+):
+    """Get all users with optional search and pagination"""
+    query = db.query(User)
+    
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            (User.name.ilike(search_term)) | 
+            (User.email.ilike(search_term))
+        )
+    
+    total = query.count()
+    users = query.order_by(desc(User.created_at)).offset(skip).limit(limit).all()
+    
+    user_list = []
+    for user in users:
+        user_list.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "created_at": user.created_at,
+            "last_login": user.last_login,
+            "role": user.role,
+            "is_active": user.is_active
+        })
+    
+    return {
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "users": user_list
+    }
+
+@router.get("/logins")
+async def get_login_history(
+    admin_user: User = Depends(require_admin),
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    """Get recent login history"""
+    total = db.query(LoginHistory).count()
+    
+    logins = db.query(
+        LoginHistory.id,
+        LoginHistory.user_id,
+        LoginHistory.login_time,
+        LoginHistory.ip_address,
+        LoginHistory.login_method,
+        User.name,
+        User.email
+    ).join(User, LoginHistory.user_id == User.id).order_by(
+        desc(LoginHistory.login_time)
+    ).offset(skip).limit(limit).all()
+    
+    login_list = []
+    for login in logins:
+        login_list.append({
+            "id": login.id,
+            "user_id": login.user_id,
+            "user_name": login.name,
+            "user_email": login.email,
+            "login_time": login.login_time,
+            "ip_address": login.ip_address,
+            "login_method": login.login_method
+        })
+    
+    return {
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "logins": login_list
+    }
+
 @router.get("/export/users")
 async def export_users(
     admin_user: User = Depends(require_admin),
