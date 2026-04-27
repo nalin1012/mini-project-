@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
 
 export function LoginForm() {
 	const router = useRouter()
@@ -43,17 +43,37 @@ export function LoginForm() {
 
 			if (!response.ok) {
 				const data = await response.json()
-				setError(data.detail || "Login failed. Please check your credentials.")
+				
+				// Better error messages
+				let errorMessage = "Login failed. Please check your credentials."
+				if (data.detail) {
+					if (typeof data.detail === "string") {
+						if (data.detail.includes("Invalid")) {
+							errorMessage = "Invalid email or password"
+						} else if (data.detail.includes("deactivated")) {
+							errorMessage = "Your account has been deactivated"
+						} else {
+							errorMessage = data.detail
+						}
+					}
+				}
+				setError(errorMessage)
 				return
 			}
 
 			const data = await response.json()
 			localStorage.setItem("access_token", data.access_token)
-			localStorage.setItem("user", data.user.name)
+			localStorage.setItem("user", JSON.stringify(data.user))
 			router.push("/dashboard")
 		} catch (err) {
 			console.error("Login error:", err)
-			setError("Failed to connect to server. Please try again.")
+			
+			// Handle network errors specifically
+			if (err instanceof TypeError && err.message.includes("fetch")) {
+				setError("Unable to connect to server. Make sure the backend is running at " + API_BASE_URL)
+			} else {
+				setError(err instanceof Error ? err.message : "Failed to connect to server. Please try again.")
+			}
 		} finally {
 			setLoading(false)
 		}
