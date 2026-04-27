@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
 
 interface UserData {
   id: number
@@ -28,6 +28,7 @@ export function DashboardNavbar() {
   const pathname = usePathname()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [userName, setUserName] = useState("User")
+  const [isAdmin, setIsAdmin] = useState(false)
   
   const links = [
     { label: "Dashboard", href: "/dashboard" },
@@ -36,6 +37,9 @@ export function DashboardNavbar() {
     { label: "Progress", href: "/result" },
     { label: "Profile", href: "/profile" },
   ]
+  
+  const adminLinks = isAdmin ? [{ label: "Admin", href: "/admin" }] : []
+  const allLinks = [...links, ...adminLinks]
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,6 +58,7 @@ export function DashboardNavbar() {
           const data = await response.json()
           setUserData(data)
           setUserName(data.name || "User")
+          setIsAdmin(data.role === "admin")
         }
       } catch (err) {
         console.error("Error fetching user data:", err)

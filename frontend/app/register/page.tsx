@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
 
 export default function RegisterPage() {
 	const router = useRouter()
@@ -26,43 +26,94 @@ export default function RegisterPage() {
 	const [password, setPassword] = useState("")
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState("")
+	const [success, setSuccess] = useState(false)
+
+	const validateForm = (): string | null => {
+		if (!name.trim()) return "Name is required"
+		if (name.trim().length < 2) return "Name must be at least 2 characters"
+		if (!email.trim()) return "Email is required"
+		if (!password) return "Password is required"
+		if (password.length < 6) return "Password must be at least 6 characters"
+		return null
+	}
 
 	const handleRegister = async (e: React.FormEvent) => {
 		e.preventDefault()
 		setError("")
-		setLoading(true)
+		setSuccess(false)
 
-		if (password.length < 8) {
-			setError("Password must be at least 8 characters")
-			setLoading(false)
+		// Client-side validation
+		const validationError = validateForm()
+		if (validationError) {
+			setError(validationError)
 			return
 		}
 
+		setLoading(true)
+
 		try {
-			const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+			const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					name,
-					email,
+					name: name.trim(),
+					email: email.toLowerCase().trim(),
 					password,
 				}),
 			})
 
-			if (res.ok) {
-				const data = await res.json()
-				localStorage.setItem("access_token", data.access_token)
-				localStorage.setItem("user", data.user.name)
-				router.push("/dashboard")
-			} else {
-				const data = await res.json()
-				setError(data.detail || "Registration failed. Please try again.")
+			const data = await response.json()
+
+			if (!response.ok) {
+				// Handle specific error messages from backend
+				let errorMessage = "Registration failed. Please try again."
+				
+				if (data.detail) {
+					if (typeof data.detail === "string") {
+						errorMessage = data.detail
+					} else if (Array.isArray(data.detail)) {
+						// Pydantic validation errors
+						errorMessage = data.detail[0].msg || errorMessage
+					}
+				}
+
+				// Map common error messages
+				if (errorMessage.includes("Email already registered") || errorMessage.includes("already exists")) {
+					setError("This email is already registered. Try logging in instead.")
+				} else if (errorMessage.includes("Password") || errorMessage.includes("password")) {
+					setError("Password must be at least 6 characters")
+				} else if (errorMessage.includes("Name") || errorMessage.includes("name")) {
+					setError("Please enter a valid name (at least 2 characters)")
+				} else if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+					setError("Please enter a valid email address")
+				} else {
+					setError(errorMessage)
+				}
+				return
 			}
+
+			// Success - store token and user info
+			setSuccess(true)
+			const { access_token, user } = data
+			
+			localStorage.setItem("access_token", access_token)
+			localStorage.setItem("user", JSON.stringify(user))
+			
+			// Small delay to show success message
+			setTimeout(() => {
+				router.push("/dashboard")
+			}, 500)
 		} catch (err) {
 			console.error("Registration error:", err)
-			setError("Failed to connect to server. Please try again.")
+			
+			// Handle network errors
+			if (err instanceof TypeError && err.message.includes("fetch")) {
+				setError("Unable to connect to server. Please check your internet connection and try again.")
+			} else {
+				setError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.")
+			}
 		} finally {
 			setLoading(false)
 		}
@@ -94,6 +145,12 @@ export default function RegisterPage() {
 					{error && (
 						<div className="rounded-lg bg-red-500/20 border border-red-500/30 p-3 text-sm text-red-300">
 							{error}
+						</div>
+					)}
+
+					{success && (
+						<div className="rounded-lg bg-green-500/20 border border-green-500/30 p-3 text-sm text-green-300">
+							✓ Account created successfully! Redirecting...
 						</div>
 					)}
 
@@ -134,18 +191,18 @@ export default function RegisterPage() {
 							<Input
 								id="password"
 								type="password"
-								placeholder="Min. 8 characters"
+								placeholder="Min. 6 characters"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								disabled={loading}
 								className="h-11 rounded-xl border-white/10 bg-white/5 text-white placeholder-gray-500 focus:border-blue-400"
 								required
-								minLength={8}
+								minLength={6}
 							/>
 						</div>
 						<Button
 							type="submit"
-							disabled={loading}
+							disabled={loading || success}
 							className="h-11 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
 						>
 							{loading ? (
@@ -153,6 +210,8 @@ export default function RegisterPage() {
 									<Loader className="mr-2 size-4 animate-spin" />
 									Creating Account...
 								</>
+							) : success ? (
+								"✓ Redirecting..."
 							) : (
 								"Create Account"
 							)}
