@@ -5,6 +5,7 @@ from sqlalchemy import func, desc
 from datetime import datetime, timedelta
 import sys
 import os
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -13,15 +14,31 @@ from models import User, LoginHistory, QuizResult, LearningProgress
 from schemas import AdminDashboardResponse, LoginStatsResponse, RecentLoginResponse, UserDetailResponse
 from auth import get_current_user
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 def require_admin(current_user: User = Depends(get_current_user)):
-    """Dependency to ensure user is admin"""
+    """Dependency to ensure user is admin with enhanced authorization checks"""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
+    
     if current_user.role != "admin":
+        logger.warning(f"Unauthorized admin access attempt by user: {current_user.id}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admins can access this resource"
         )
+    
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin account is inactive"
+        )
+    
     return current_user
 
 @router.get("/dashboard", response_model=AdminDashboardResponse)
