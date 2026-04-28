@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 # Try to import Firebase admin SDK (optional)
 try:
     import firebase_admin
-    from firebase_admin import credentials, auth
+    from firebase_admin import credentials, auth, db
     FIREBASE_SDK_AVAILABLE = True
 except ImportError:
     FIREBASE_SDK_AVAILABLE = False
@@ -21,6 +21,7 @@ def initialize_firebase():
     try:
         # Try loading from environment variable first
         creds_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+        database_url = os.getenv("FIREBASE_DATABASE_URL")
         
         if creds_json:
             creds_dict = json.loads(creds_json)
@@ -35,7 +36,14 @@ def initialize_firebase():
                 print("⚠️  Firebase credentials not found. Using JWT auth only.")
                 return False
         
-        firebase_admin.initialize_app(creds)
+        # Initialize Firebase with database URL if available
+        options = {
+            'credentials': creds,
+        }
+        if database_url:
+            options['databaseURL'] = database_url
+        
+        firebase_admin.initialize_app(creds, options)
         print("✓ Firebase Admin SDK initialized successfully")
         return True
     except Exception as e:
@@ -69,6 +77,59 @@ def get_user_by_firebase_uid(uid: str) -> Optional[Dict[str, Any]]:
         }
     except Exception as e:
         print(f"Firebase get user failed: {str(e)}")
+        return None
+
+# Firebase Realtime Database operations
+def save_user_progress_to_firebase(user_id: int, progress_data: Dict[str, Any]):
+    """Save user progress to Firebase Realtime Database"""
+    if not FIREBASE_SDK_AVAILABLE or not FIREBASE_AVAILABLE:
+        return False
+    
+    try:
+        ref = db.reference(f"users/{user_id}/progress")
+        ref.set(progress_data)
+        return True
+    except Exception as e:
+        print(f"Firebase save progress failed: {str(e)}")
+        return False
+
+def get_user_progress_from_firebase(user_id: int) -> Optional[Dict[str, Any]]:
+    """Get user progress from Firebase Realtime Database"""
+    if not FIREBASE_SDK_AVAILABLE or not FIREBASE_AVAILABLE:
+        return None
+    
+    try:
+        ref = db.reference(f"users/{user_id}/progress")
+        data = ref.get()
+        return data.val() if data else None
+    except Exception as e:
+        print(f"Firebase get progress failed: {str(e)}")
+        return None
+
+def save_quiz_result_to_firebase(user_id: int, quiz_id: str, result_data: Dict[str, Any]):
+    """Save quiz result to Firebase Realtime Database"""
+    if not FIREBASE_SDK_AVAILABLE or not FIREBASE_AVAILABLE:
+        return False
+    
+    try:
+        ref = db.reference(f"users/{user_id}/quiz_results/{quiz_id}")
+        ref.set(result_data)
+        return True
+    except Exception as e:
+        print(f"Firebase save quiz result failed: {str(e)}")
+        return False
+
+def get_user_quiz_results_from_firebase(user_id: int) -> Optional[Dict[str, Any]]:
+    """Get user's quiz results from Firebase Realtime Database"""
+    if not FIREBASE_SDK_AVAILABLE or not FIREBASE_AVAILABLE:
+        return None
+    
+    try:
+        ref = db.reference(f"users/{user_id}/quiz_results")
+        data = ref.get()
+        return data.val() if data else {}
+    except Exception as e:
+        print(f"Firebase get quiz results failed: {str(e)}")
         return None
 
 # Initialize on module import

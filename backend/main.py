@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add backend directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -15,6 +19,7 @@ from students import router as tutor_router
 from recommendations import router as recommendation_router
 from users import router as users_router
 from admin import router as admin_router
+from firebase_service import router as firebase_router
 from database import init_db
 
 # Initialize FastAPI app
@@ -46,6 +51,7 @@ app.include_router(quiz_router)
 app.include_router(progress_router)
 app.include_router(tutor_router)
 app.include_router(recommendation_router)
+app.include_router(firebase_router)
 
 @app.get("/")
 def home():

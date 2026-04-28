@@ -61,6 +61,8 @@ async def get_dashboard_summary(
         "total_questions_attempted": total_questions,
         "correct_answers": correct_answers,
         "overall_accuracy": round(overall_accuracy, 2),
+        "points": current_user.points,
+        "streak": current_user.streak,
         "weak_areas": weak_areas,
         "study_topics": [p.concept for p in progress_list]
     }
