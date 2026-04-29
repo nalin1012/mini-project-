@@ -26,13 +26,16 @@ interface SubmitResult {
   selected_option: number
   mastery_update: number
   message: string
+  points_earned: number
+  total_points: number
+  streak: number
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
 const TOPICS = ["Fractions", "Algebra", "Loops", "Variables", "Functions", "Motion", "Grammar", "Reasoning"]
 
 export default function QuizPage() {
-  const [stage, setStage] = useState<"topic-select" | "difficulty-select" | "quiz" | "results">("topic-select")
+  const [stage, setStage] = useState<"topic-select" | "difficulty-select" | "quiz" | "feedback" | "results">("topic-select")
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<"easy" | "medium" | "hard" | null>(null)
   const [quizData, setQuizData] = useState<QuizData | null>(null)
@@ -43,6 +46,7 @@ export default function QuizPage() {
   const [results, setResults] = useState<SubmitResult[]>([])
   const [mastery, setMastery] = useState(0)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
+  const [lastResult, setLastResult] = useState<SubmitResult | null>(null)
 
   // Timer effect
   useEffect(() => {
@@ -122,19 +126,26 @@ export default function QuizPage() {
       const newResults = [...results, result]
       setResults(newResults)
       setMastery(result.mastery_update)
-
-      if (currentQuestion < quizData.total_questions - 1) {
-        setCurrentQuestion(currentQuestion + 1)
-        setSelectedAnswer(null)
-        setQuestionStartTime(Date.now())
-      } else {
-        setStage("results")
-      }
+      setLastResult(result)
+      setStage("feedback")
     } catch (err) {
       console.error("Error submitting answer:", err)
       alert("Failed to submit answer. Please try again.")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleContinue = () => {
+    if (!quizData || !lastResult) return
+
+    if (currentQuestion < quizData.total_questions - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+      setSelectedAnswer(null)
+      setQuestionStartTime(Date.now())
+      setStage("quiz")
+    } else {
+      setStage("results")
     }
   }
 
@@ -270,6 +281,58 @@ export default function QuizPage() {
               {loading ? <Loader className="h-4 w-4 mr-2 animate-spin" /> : null}
               {currentQuestion === quizData.total_questions - 1 ? "Finish" : "Next"} →
             </Button>
+          </>
+        )}
+
+        {/* FEEDBACK */}
+        {stage === "feedback" && lastResult && quizData && (
+          <>
+            <div className="flex flex-col items-center gap-6 py-12">
+              <div className="text-6xl mb-4">
+                {lastResult.is_correct ? "✅" : "❌"}
+              </div>
+              
+              <div className="text-center">
+                <h2 className={`text-4xl font-bold mb-2 ${lastResult.is_correct ? "text-green-400" : "text-red-400"}`}>
+                  {lastResult.message}
+                </h2>
+                <p className="text-gray-300 text-lg">
+                  Question {currentQuestion + 1} of {quizData.total_questions}
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3 w-full max-w-2xl">
+                <div className="glass rounded-lg p-6 bg-yellow-500/10 border border-yellow-500/30 text-center">
+                  <p className="text-yellow-300 text-sm font-semibold">Points Earned</p>
+                  <p className="text-3xl font-bold text-yellow-400 mt-2">+{lastResult.points_earned}</p>
+                </div>
+                <div className="glass rounded-lg p-6 bg-blue-500/10 border border-blue-500/30 text-center">
+                  <p className="text-blue-300 text-sm font-semibold">Total Points</p>
+                  <p className="text-3xl font-bold text-blue-400 mt-2">{lastResult.total_points}</p>
+                </div>
+                <div className="glass rounded-lg p-6 bg-orange-500/10 border border-orange-500/30 text-center">
+                  <p className="text-orange-300 text-sm font-semibold">Streak 🔥</p>
+                  <p className="text-3xl font-bold text-orange-400 mt-2">{lastResult.streak}</p>
+                </div>
+              </div>
+
+              {lastResult.explanation && (
+                <div className="glass rounded-lg p-6 bg-white/5 border border-white/10 w-full max-w-2xl">
+                  <p className="text-gray-300 text-sm font-semibold mb-2">Explanation:</p>
+                  <p className="text-white">{lastResult.explanation}</p>
+                  <p className="text-gray-400 text-sm mt-3">
+                    Correct answer: <span className="text-blue-400 font-semibold">{String.fromCharCode(65 + lastResult.correct_option)}</span>
+                  </p>
+                </div>
+              )}
+
+              <Button
+                onClick={handleContinue}
+                className="w-full max-w-2xl bg-blue-600 hover:bg-blue-700 text-white py-3 mt-4"
+              >
+                {currentQuestion === quizData.total_questions - 1 ? "See Results" : "Continue"} →
+              </Button>
+            </div>
           </>
         )}
 

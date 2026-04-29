@@ -1,17 +1,37 @@
-# ===== Python (Backend) =====
+# ===== Backend (Python) =====
 __pycache__/
 *.pyc
 *.pyo
-venv/
-.env
+*.pyd
 
-# ===== Node.js / Next.js (Frontend) =====
+# Virtual env
+venv/
+backend/venv/
+
+# Environment files 🔐
+.env
+backend/.env
+
+# Firebase secrets 🚨
+backend/service-account-key.json
+
+# Database
+*.db
+
+# ===== Frontend (Next.js / Node) =====
 node_modules/
+frontend/node_modules/
+
 .next/
+frontend/.next/
+
 out/
+
+# Env files (frontend)
 .env.local
 .env.development.local
 .env.production.local
+frontend/.env.local
 
 # ===== Logs =====
 npm-debug.log*
@@ -29,6 +49,3 @@ Thumbs.db
 dist/
 build/
 .cache/
-
-*.db
-__pycache__/

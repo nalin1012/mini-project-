@@ -17,6 +17,7 @@ import {
 import { DashboardNavbar } from "@/components/dashboard-navbar"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { TutorChat } from "@/components/tutor-chat"
 
 interface DashboardData {
 	user_name: string
@@ -24,6 +25,8 @@ interface DashboardData {
 	total_questions_attempted: number
 	correct_answers: number
 	overall_accuracy: number
+	points: number
+	streak: number
 	weak_areas: Array<{
 		topic: string
 		mastery_score: number
@@ -88,15 +91,20 @@ export default function DashboardPage() {
 	const stats = useMemo(() => {
 		if (!dashboardData) {
 			return [
-				{ label: "Total Subjects", value: "5", icon: BookOpen },
+				{ label: "Points", value: "0", icon: Trophy },
+				{ label: "Study Streak", value: "0 🔥", icon: Brain },
 				{ label: "Quizzes Completed", value: "0", icon: Trophy },
 				{ label: "Accuracy", value: "0%", icon: Target },
-				{ label: "Study Streak", value: "0 days", icon: Brain },
 			]
 		}
 
 		return [
-			{ label: "Total Subjects", value: "5", icon: BookOpen },
+			{ label: "Points", value: dashboardData.points.toString(), icon: Trophy },
+			{
+				label: "Study Streak",
+				value: `${dashboardData.streak} 🔥`,
+				icon: Brain,
+			},
 			{
 				label: "Quizzes Completed",
 				value: dashboardData.total_quizzes_completed.toString(),
@@ -107,7 +115,6 @@ export default function DashboardPage() {
 				value: `${Math.round(dashboardData.overall_accuracy)}%`,
 				icon: Target,
 			},
-			{ label: "Study Streak", value: "Keep going!", icon: Brain },
 		]
 	}, [dashboardData])
 
@@ -327,6 +334,19 @@ export default function DashboardPage() {
 										</p>
 									</div>
 								</div>
+							</section>
+						)}
+
+						{/* AI Tutor Chat */}
+						{!loading && (
+							<section className="mt-8">
+								<div className="mb-6">
+									<h2 className="text-2xl font-semibold text-white">Need Help? Ask TutorVoice 🤖</h2>
+									<p className="mt-2 text-sm text-gray-400">
+										Get instant explanations and examples for any topic
+									</p>
+								</div>
+								<TutorChat />
 							</section>
 						)}
 					</>

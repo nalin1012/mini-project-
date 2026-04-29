@@ -13,6 +13,7 @@ from models import (
 )
 from schemas import QuestionResponse, QuizAnswerSubmit, QuizResultResponse
 from auth import get_current_user
+from firebase_config import save_quiz_result_to_firebase
 
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
@@ -226,7 +227,36 @@ async def submit_quiz_answer(
         else:
             weak_area.mastery_score = progress.mastery_score
     
+    # GAMIFICATION: Add points and update streak
+    points_earned = 10 if is_correct else 2
+    current_user.points += points_earned
+    
+    # Update streak logic
+    from datetime import datetime, timedelta
+    today = datetime.utcnow().date()
+    last_login = current_user.last_login.date() if current_user.last_login else None
+    
+    if last_login != today:
+        # New day - check if yesterday or reset
+        if last_login and last_login == today - timedelta(days=1):
+            # Consecutive day - increment streak
+            current_user.streak += 1
+        else:
+            # Break in streak - reset
+            current_user.streak = 1
+        current_user.last_login = datetime.utcnow()
+    
     db.commit()
+    
+    # Sync to Firebase Realtime Database
+    quiz_result_data = {
+        "topic": topic_key,
+        "is_correct": is_correct,
+        "points_earned": points_earned,
+        "timestamp": datetime.utcnow().isoformat(),
+        "mastery_score": round(progress.mastery_score * 100, 2),
+    }
+    save_quiz_result_to_firebase(current_user.id, f"quiz_{quiz_result.id}", quiz_result_data)
     
     return {
         "is_correct": is_correct,
@@ -234,7 +264,10 @@ async def submit_quiz_answer(
         "correct_option": question_data["correct"],
         "selected_option": selected_option,
         "mastery_update": round(progress.mastery_score * 100, 2),
-        "message": "✓ Correct! Great job!" if is_correct else "✗ Incorrect. Review the concept."
+        "message": "✓ Correct! Great job!" if is_correct else "✗ Incorrect. Review the concept.",
+        "points_earned": points_earned,
+        "total_points": current_user.points,
+        "streak": current_user.streak
     }
 
 @router.get("/stats")

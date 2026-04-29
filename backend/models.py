@@ -19,6 +19,8 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
     firebase_uid = Column(String, nullable=True, unique=True)  # Firebase UID
+    points = Column(Integer, default=0)  # Gamification: total points
+    streak = Column(Integer, default=0)  # Gamification: daily login streak
     
     # Relationships
     progress = relationship("LearningProgress", back_populates="student", cascade="all, delete-orphan")

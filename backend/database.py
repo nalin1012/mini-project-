@@ -24,7 +24,6 @@ def get_db():
 
 # Create all tables
 def init_db():
-    # Drop all existing tables to force recreation with updated schema
-    Base.metadata.drop_all(bind=engine)
-    # Create all tables with the updated schema
+    """Create all database tables (only if they don't exist)"""
     Base.metadata.create_all(bind=engine)
+    print("✓ Database tables initialized successfully")

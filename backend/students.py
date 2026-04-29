@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from typing import Optional
-import sys
+from sqlalchemy.orm import Session
 import os
+import sys
+import json
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -11,224 +11,148 @@ from database import get_db
 from models import User
 from auth import get_current_user
 
+# Knowledge base for tutor responses
+KNOWLEDGE_BASE = {
+    "fractions": {
+        "response": "Fractions represent parts of a whole. A fraction has a numerator (top number) and denominator (bottom number).",
+        "explanation": "A fraction like 3/4 means 3 parts out of 4 equal parts. The numerator tells you how many parts you have, and the denominator tells you how many parts make up the whole. For example, if you cut a pizza into 8 slices and eat 3, you've eaten 3/8 of the pizza.",
+        "examples": ["Adding fractions: 1/2 + 1/4 = 3/4", "Converting to decimals: 1/2 = 0.5", "Simplifying: 4/8 = 1/2"]
+    },
+    "algebra": {
+        "response": "Algebra is a branch of mathematics that uses letters (like x and y) to represent unknown numbers in equations.",
+        "explanation": "Algebra helps you solve problems where some information is missing. Instead of just working with numbers, you use variables to represent unknowns and write equations to find their values. For example, if x + 5 = 12, then x = 7.",
+        "examples": ["Solving equations: 2x + 3 = 11 (answer: x = 4)", "Writing expressions for real situations", "Using variables to find missing values"]
+    },
+    "geometry": {
+        "response": "Geometry is the study of shapes, sizes, and properties of space and figures.",
+        "explanation": "Geometry deals with points, lines, angles, and shapes like triangles, circles, and squares. It helps us understand the physical world around us and solve real problems about distance, area, and volume.",
+        "examples": ["Finding the area of a rectangle: length × width", "Using Pythagorean theorem: a² + b² = c²", "Calculating circumference of a circle: 2πr"]
+    },
+    "calculus": {
+        "response": "Calculus is the mathematics of change. It includes derivatives and integrals to study rates of change and accumulation.",
+        "explanation": "Calculus helps us understand how things change over time. Derivatives measure rates of change (like speed or growth rate), while integrals measure accumulation (like total distance or area under a curve). It's used in physics, engineering, and economics.",
+        "examples": ["Finding derivative of f(x) = 2x²", "Calculating area under a curve using integration", "Finding maximum/minimum values of functions"]
+    },
+    "science": {
+        "response": "Science is the systematic study of the natural world through observation and experimentation.",
+        "explanation": "Science helps us understand how things work by testing ideas and gathering evidence. Main branches include physics, chemistry, and biology. The scientific method involves making observations, forming hypotheses, conducting experiments, and drawing conclusions.",
+        "examples": ["Understanding how plants grow through photosynthesis", "Learning why objects fall (gravity)", "Studying how medicines work in the body"]
+    },
+    "physics": {
+        "response": "Physics is the study of matter, energy, and forces, and how they interact.",
+        "explanation": "Physics explains how the universe works at all scales, from tiny atoms to massive galaxies. It includes mechanics (motion and forces), thermodynamics (heat and temperature), waves, electricity, magnetism, and modern physics.",
+        "examples": ["Newton's laws of motion", "Conservation of energy", "Speed, velocity, and acceleration calculations"]
+    },
+    "chemistry": {
+        "response": "Chemistry is the study of substances, their reactions, and the bonds between atoms.",
+        "explanation": "Chemistry explains what things are made of and how they change through reactions. It covers atoms, molecules, chemical bonding, and reactions like combustion, oxidation, and synthesis.",
+        "examples": ["Understanding water (H₂O) as hydrogen and oxygen bonded together", "Combustion reactions: burning fuel produces heat and CO₂", "Acid-base reactions: mixing vinegar and baking soda"]
+    },
+    "biology": {
+        "response": "Biology is the study of living organisms and life processes.",
+        "explanation": "Biology helps us understand how living things work, grow, and interact with each other and their environment. It includes cell biology, genetics, ecology, evolution, and human anatomy.",
+        "examples": ["Understanding how cells reproduce through mitosis", "Learning about DNA and heredity", "Studying ecosystems and food chains"]
+    },
+    "evolution": {
+        "response": "Evolution is the process by which organisms change and adapt over time through natural selection.",
+        "explanation": "Evolution explains how all life on Earth is connected and how species change over millions of years. It's based on the idea that organisms with traits better suited to their environment are more likely to survive and reproduce, passing those traits to offspring.",
+        "examples": ["Darwin's finches adapting beak shapes to different food sources", "Peppered moths changing color during industrial revolution", "Humans and primates sharing common ancestors"]
+    },
+    "english": {
+        "response": "English is the study of language, literature, and communication skills.",
+        "explanation": "English develops reading, writing, and speaking skills. It includes grammar, vocabulary, poetry, novels, essays, and literary analysis. Good communication skills are essential for success in school and career.",
+        "examples": ["Writing persuasive essays with strong arguments", "Analyzing themes and symbolism in literature", "Learning grammar rules for clear writing"]
+    },
+    "history": {
+        "response": "History is the study of past events and how they shaped our world.",
+        "explanation": "History helps us understand how societies evolved and why things are the way they are today. It teaches us about different cultures, important events, and influential people throughout time.",
+        "examples": ["Ancient Egyptian civilization and pyramids", "The Industrial Revolution and its impact", "World wars and their consequences"]
+    },
+    "math": {
+        "response": "Mathematics is the study of numbers, quantities, and patterns.",
+        "explanation": "Math helps us understand relationships between quantities and solve real-world problems. It includes arithmetic, algebra, geometry, calculus, and statistics.",
+        "examples": ["Calculating interest on savings", "Designing structures using geometry", "Analyzing data trends with statistics"]
+    }
+}
+
+
 router = APIRouter(prefix="/api/tutor", tags=["tutor"])
 
-class TutorMessage(BaseModel):
+class TutorRequest(BaseModel):
     message: str
-    context: Optional[str] = None  # Topic context
+    context: str | None = None
 
 class TutorResponse(BaseModel):
     response: str
     explanation: str
-    examples: list
-    tips: list
-
-# Knowledge base for AI Tutor
-TUTOR_KNOWLEDGE_BASE = {
-    "fractions": {
-        "keywords": ["fraction", "numerator", "denominator", "simplify", "add", "subtract"],
-        "responses": {
-            "What are fractions?": "Fractions represent parts of a whole. A fraction has two numbers: the numerator (top) and denominator (bottom). For example, 1/2 means 1 part out of 2 equal parts.",
-            "How do I add fractions?": "To add fractions with the same denominator, add the numerators and keep the denominator. For example: 1/4 + 2/4 = 3/4. For different denominators, find the common denominator first.",
-            "How do I simplify fractions?": "To simplify a fraction, divide both numerator and denominator by their greatest common divisor (GCD). For example: 6/9 = 2/3 (divide by 3).",
-        },
-        "examples": [
-            "1/2 + 1/4 = 3/4",
-            "6/9 simplified is 2/3",
-            "1/3 + 1/3 = 2/3"
-        ]
-    },
-    "algebra": {
-        "keywords": ["equation", "solve", "variable", "linear", "expression"],
-        "responses": {
-            "What is algebra?": "Algebra uses symbols (usually letters) to represent unknown numbers and to describe relationships between quantities. We use variables like 'x' to stand for unknown values.",
-            "How do I solve an equation?": "To solve an equation, isolate the variable on one side. Use inverse operations: if it's addition, subtract; if multiplication, divide. For example: x + 5 = 12 → x = 12 - 5 = 7",
-            "What are variables?": "Variables are symbols (usually letters like x, y, z) that represent unknown or changing quantities. They let us write general rules instead of specific numbers.",
-        },
-        "examples": [
-            "x + 5 = 12 → x = 7",
-            "2x = 10 → x = 5",
-            "3x - 2 = 10 → 3x = 12 → x = 4"
-        ]
-    },
-    "loops": {
-        "keywords": ["loop", "for", "while", "iteration", "repeat"],
-        "responses": {
-            "What are loops?": "Loops allow us to repeat a block of code multiple times. There are two main types: for loops (for a set number of times) and while loops (while a condition is true).",
-            "How does a for loop work?": "A for loop repeats code for each item in a sequence. For example: for i in range(3): print(i) will print 0, 1, 2",
-            "What is a while loop?": "A while loop repeats as long as a condition is true. For example: while i < 5: i += 1 will repeat until i equals 5. Be careful not to create infinite loops!",
-        },
-        "examples": [
-            "for i in range(5): print(i)  # prints 0-4",
-            "while x < 10: x += 1",
-            "for item in list: process(item)"
-        ]
-    },
-    "variables": {
-        "keywords": ["variable", "assign", "data type", "name"],
-        "responses": {
-            "What are variables?": "Variables are containers that store data. In Python, you create a variable by assigning a value: x = 5",
-            "How do I name variables?": "Variable names should be descriptive and start with a letter or underscore. Use lowercase with underscores for multi-word names: student_name = 'Ali'",
-            "What are data types?": "Common data types are: integers (5), floats (5.5), strings ('hello'), and booleans (True/False).",
-        },
-        "examples": [
-            "x = 5  # integer",
-            "name = 'Ali'  # string",
-            "price = 19.99  # float"
-        ]
-    },
-    "functions": {
-        "keywords": ["function", "define", "return", "parameter", "argument"],
-        "responses": {
-            "What are functions?": "Functions are reusable blocks of code that perform a specific task. You define them with 'def' and call them by name.",
-            "How do I define a function?": "Use the def keyword: def greet(name): return 'Hello, ' + name",
-            "What are parameters?": "Parameters are the inputs to a function. When you call the function, you provide arguments (values) for these parameters.",
-        },
-        "examples": [
-            "def add(a, b): return a + b",
-            "def greet(name): return f'Hello, {name}'",
-            "def square(x): return x * x"
-        ]
-    }
-}
-
-def get_tutor_response(message: str, context: Optional[str] = None) -> TutorResponse:
-    """
-    Get AI tutor response based on user message
-    Uses rule-based system (can be upgraded to LLM later)
-    """
-    message_lower = message.lower()
-    
-    # Determine topic from context or message
-    topic = context.lower() if context else None
-    
-    # Search for matching topic
-    if not topic:
-        for t in TUTOR_KNOWLEDGE_BASE.keys():
-            if t in message_lower:
-                topic = t
-                break
-    
-    # Default to general response if no topic found
-    if not topic or topic not in TUTOR_KNOWLEDGE_BASE:
-        return TutorResponse(
-            response="I'm here to help! Ask me about Fractions, Algebra, Loops, Variables, or Functions.",
-            explanation="Please specify a topic you'd like help with.",
-            examples=["What are fractions?", "How do I solve equations?", "Explain loops"],
-            tips=["Be specific about what you want to learn", "Ask follow-up questions", "Practice with examples"]
-        )
-    
-    knowledge = TUTOR_KNOWLEDGE_BASE[topic]
-    
-    # Find specific response
-    response_text = None
-    for key, value in knowledge["responses"].items():
-        if any(keyword in message_lower for keyword in key.lower().split()):
-            response_text = value
-            break
-    
-    # Default response for the topic if no specific match
-    if not response_text:
-        response_text = f"Great question about {topic}! Let me help you understand this concept better."
-    
-    return TutorResponse(
-        response=response_text,
-        explanation=f"This is a common question in {topic}. Understanding this will help you solve many problems.",
-        examples=knowledge["examples"][:3],
-        tips=[
-            f"Practice with more {topic} problems",
-            "Work through examples step by step",
-            "Try solving similar problems on your own"
-        ]
-    )
+    examples: list[str]
 
 @router.post("/ask", response_model=TutorResponse)
 async def ask_tutor(
-    tutor_msg: TutorMessage,
-    current_user: User = Depends(get_current_user)
+    request: TutorRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """
-    Ask the AI tutor a question
+    AI Tutor endpoint - provides interactive learning explanations and examples
     """
-    if not tutor_msg.message or len(tutor_msg.message.strip()) == 0:
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
     
-    response = get_tutor_response(tutor_msg.message, tutor_msg.context)
-    return response
-
-@router.get("/topics")
-async def get_available_topics(
-    current_user: User = Depends(get_current_user)
-):
-    """Get list of topics the tutor can help with"""
-    return {
-        "topics": list(TUTOR_KNOWLEDGE_BASE.keys()),
-        "description": "Ask me about any of these topics and I'll help you learn!",
-        "example_questions": [
-            "What are fractions?",
-            "How do I solve equations?",
-            "How do loops work?",
-            "What are variables?",
-            "How do I write functions?"
-        ]
-    }
-
-@router.get("/explain/{topic}")
-async def explain_topic(
-    topic: str,
-    current_user: User = Depends(get_current_user)
-):
-    """Get explanation for a specific topic"""
-    topic_lower = topic.lower()
-    
-    if topic_lower not in TUTOR_KNOWLEDGE_BASE:
+    if not request.message or not request.message.strip():
         raise HTTPException(
-            status_code=404,
-            detail=f"Topic '{topic}' not found. Available topics: {list(TUTOR_KNOWLEDGE_BASE.keys())}"
+            status_code=400,
+            detail="Please provide a question"
         )
     
-    knowledge = TUTOR_KNOWLEDGE_BASE[topic_lower]
+    question = request.message.lower().strip()
+    context = (request.context or "").lower() if request.context else ""
+    search_text = f"{question} {context}"
     
-    # Get first response as main explanation
-    main_response = list(knowledge["responses"].values())[0]
+    # Find best matching topic from knowledge base
+    matched_topic = None
+    best_score = 0
     
-    return {
-        "topic": topic,
-        "explanation": main_response,
-        "related_questions": list(knowledge["responses"].keys()),
-        "examples": knowledge["examples"],
-        "tips": [
-            "Start with the basics",
-            "Practice with these examples",
-            "Ask me any follow-up questions"
-        ]
-    }
-
-@router.post("/practice-hint/{topic}")
-async def get_practice_hint(
-    topic: str,
-    current_user: User = Depends(get_current_user)
-):
-    """Get a hint for practicing a topic"""
-    topic_lower = topic.lower()
+    for topic in KNOWLEDGE_BASE.keys():
+        if topic in search_text:
+            score = len(topic)
+            if score > best_score:
+                best_score = score
+                matched_topic = topic
     
-    if topic_lower not in TUTOR_KNOWLEDGE_BASE:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Topic '{topic}' not found"
+    # Provide response from knowledge base
+    if matched_topic:
+        data = KNOWLEDGE_BASE[matched_topic]
+        
+        # Make response more interactive based on question type
+        response = data["response"]
+        
+        # Detect question type and customize response
+        if "why" in question or "how" in question:
+            response = f"Great question! {response}"
+        elif "what" in question or "define" in question or "explain" in question:
+            response = f"Excellent! Let me explain: {response}"
+        elif "calculate" in question or "solve" in question:
+            response = f"Perfect! To solve this: {response}"
+        else:
+            response = f"I love your curiosity! {response}"
+        
+        return TutorResponse(
+            response=response,
+            explanation=data["explanation"],
+            examples=data["examples"]
         )
     
-    knowledge = TUTOR_KNOWLEDGE_BASE[topic_lower]
+    # Enhanced generic response with interactive prompts
+    # Try to extract keywords from the question
+    question_words = question.split()
+    keywords = [w for w in question_words if len(w) > 3]
+    keyword_phrase = " and ".join(keywords[:2]) if keywords else "that concept"
     
-    return {
-        "topic": topic,
-        "hint": f"Let's practice {topic}! Try to solve this problem step by step.",
-        "practice_example": knowledge["examples"][0] if knowledge["examples"] else "Practice available",
-        "steps_to_solve": [
-            "Read the problem carefully",
-            "Identify what you know",
-            "Plan your approach",
-            "Solve step by step",
-            "Check your answer"
+    return TutorResponse(
+        response=f"Interesting! I can help you learn about {keyword_phrase}.",
+        explanation=f"Your question about '{question[:50]}' is a great topic to explore. To understand this better:\n\n1️⃣ Start with the basics - what do you already know about it?\n2️⃣ Break it into smaller parts\n3️⃣ Connect it to real-world examples you know\n4️⃣ Practice with problems or examples\n\nWhat specific part would you like to dive deeper into?",
+        examples=[
+            "💡 Ask me to explain one specific concept",
+            "📝 Ask for real-world examples or applications",
+            "🎯 Ask for practice problems or step-by-step solutions"
         ]
-    }
+    )
