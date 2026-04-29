@@ -53,8 +53,10 @@ app.add_middleware(
 )
 
 # Initialize database
-init_db()
-logger.info("✓ Database initialized successfully")
+@app.on_event("startup")
+def on_startup():
+    init_db()
+    logger.info("✓ Database initialized successfully")
 
 # Include routers
 app.include_router(auth_router)
