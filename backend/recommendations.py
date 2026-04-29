@@ -23,8 +23,16 @@ def analyze(
     db: Session = Depends(get_db)
 ):
     """
-    Analyze student performance and provide recommendations
+    Analyze student performance and provide personalized recommendations
+    Returns mastery score, knowledge gap status, and learning path suggestions
     """
+    # Validate inputs
+    if correct < 0 or total <= 0 or correct > total:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid quiz parameters: correct must be 0-total, total > 0"
+        )
+    
     try:
         result = analyze_student(
             concept=concept,
@@ -35,10 +43,11 @@ def analyze(
         return result
     except Exception as e:
         # Fallback if ML model not available
+        mastery = correct / total
         return {
-            "mastery_score": correct / total,
-            "knowledge_gap": 1 if correct / total < 0.6 else 0,
-            "recommendation": f"{'Revise concept' if correct / total < 0.6 else 'Move to next topic'}",
+            "mastery_score": mastery,
+            "knowledge_gap": 1 if mastery < 0.6 else 0,
+            "recommendation": f"{'Revise concept' if mastery < 0.6 else 'Move to next topic'}",
             "status": "calculated_without_ml"
         }
 

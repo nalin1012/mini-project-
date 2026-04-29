@@ -4,12 +4,15 @@ from sqlalchemy.orm import Session
 import os
 import sys
 import json
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from database import get_db
 from models import User
 from auth import get_current_user
+
+logger = logging.getLogger(__name__)
 
 # Knowledge base for tutor responses
 KNOWLEDGE_BASE = {

@@ -3,7 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys
 import os
+import logging
 from dotenv import load_dotenv
+
+# Configure logging for debugging and monitoring
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -42,6 +54,7 @@ app.add_middleware(
 
 # Initialize database
 init_db()
+logger.info("✓ Database initialized successfully")
 
 # Include routers
 app.include_router(auth_router)

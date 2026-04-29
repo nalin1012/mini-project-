@@ -29,43 +29,47 @@ async def get_dashboard_summary(
 ):
     """
     Get complete dashboard summary for the user
+    Includes performance metrics and personalized recommendations
     """
-    # Get all learning progress for the user
-    progress_list = db.query(LearningProgress).filter(
-        LearningProgress.student_id == current_user.id
-    ).all()
-    
-    total_quizzes = len(progress_list)
-    total_questions = sum(p.total_questions_attempted for p in progress_list)
-    correct_answers = sum(p.correct_answers for p in progress_list)
-    
-    overall_accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
-    
-    # Get weak areas (mastery < 60%)
-    weak_areas = []
-    for progress in progress_list:
-        if progress.mastery_score < 0.6:
-            weak_areas.append({
-                "topic": progress.concept,
-                "mastery_score": round(progress.mastery_score, 2),
-                "recommendation": CONCEPT_RECOMMENDATIONS.get(
-                    progress.concept,
-                    f"Review {progress.concept} fundamentals and practice more problems."
-                ),
-                "suggested_resources": f"Practice {progress.concept} exercises"
-            })
-    
-    return {
-        "user_name": current_user.name,
-        "total_quizzes_completed": total_quizzes,
-        "total_questions_attempted": total_questions,
-        "correct_answers": correct_answers,
-        "overall_accuracy": round(overall_accuracy, 2),
-        "points": current_user.points,
-        "streak": current_user.streak,
-        "weak_areas": weak_areas,
-        "study_topics": [p.concept for p in progress_list]
-    }
+    try:
+        # Get all learning progress for the user
+        progress_list = db.query(LearningProgress).filter(
+            LearningProgress.student_id == current_user.id
+        ).all()
+        
+        total_quizzes = len(progress_list)
+        total_questions = sum(p.total_questions_attempted for p in progress_list)
+        correct_answers = sum(p.correct_answers for p in progress_list)
+        
+        overall_accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+        
+        # Get weak areas (mastery < 60%)
+        weak_areas = []
+        for progress in progress_list:
+            if progress.mastery_score < 0.6:
+                weak_areas.append({
+                    "topic": progress.concept,
+                    "mastery_score": round(progress.mastery_score, 2),
+                    "recommendation": CONCEPT_RECOMMENDATIONS.get(
+                        progress.concept,
+                        f"Review {progress.concept} fundamentals and practice more problems."
+                    ),
+                    "suggested_resources": f"Practice {progress.concept} exercises"
+                })
+        
+        return {
+            "user_name": current_user.name,
+            "total_quizzes_completed": total_quizzes,
+            "total_questions_attempted": total_questions,
+            "correct_answers": correct_answers,
+            "overall_accuracy": round(overall_accuracy, 2),
+            "points": current_user.points,
+            "streak": current_user.streak,
+            "weak_areas": weak_areas,
+            "study_topics": [p.concept for p in progress_list]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve dashboard summary")
 
 @router.get("/detect", response_model=List[KnowledgeGapResponse])
 async def detect_knowledge_gaps(

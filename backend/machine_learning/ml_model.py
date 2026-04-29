@@ -1,3 +1,16 @@
+"""
+Machine Learning Module for Student Performance Analysis
+
+This module contains:
+- Student performance analysis algorithms
+- Knowledge gap identification
+- Personalized learning recommendations
+- Quiz bank management for targeted learning
+
+Author: Shreya Singh
+Date: 2026-04-23
+"""
+
 import random
 
 # Quiz bank - knowledge gap recommendations

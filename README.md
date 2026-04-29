@@ -10,7 +10,7 @@ An intelligent full-stack EdTech system that detects knowledge gaps and delivers
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.0+-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Version:** 2.0 (Production Ready) | **Last Updated:** April 26, 2026
+**Version:** 2.1 (Production Ready) | **Last Updated:** April 27, 2026
 
 ---
 
@@ -32,6 +32,13 @@ An intelligent full-stack EdTech system that detects knowledge gaps and delivers
 - [🚀 Deployment](#-deployment)
 - [📚 Future Roadmap](#-future-roadmap)
 - [👥 Team & Support](#-team--support)
+
+### New in v2.1
+- ✅ Comprehensive logging system for debugging
+- ✅ Enhanced database connection pooling
+- ✅ Improved error handling in authentication
+- ✅ Admin authorization security enhancements
+- ✅ Caching optimization for user endpoints
 
 ---
 

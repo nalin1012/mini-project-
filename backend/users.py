@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import List
 import sys
 import os
+from functools import lru_cache
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -13,6 +15,8 @@ from database import get_db
 from models import User, LoginHistory, QuizResult
 from schemas import UserDetailResponse, UsersListResponse, LoginHistoryResponse
 from auth import get_current_user
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
