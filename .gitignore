@@ -38,6 +38,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Backend logs
+app.log
+backend/app.log
+
 # ===== OS Files =====
 .DS_Store
 Thumbs.db
