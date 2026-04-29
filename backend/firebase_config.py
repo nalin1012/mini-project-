@@ -148,5 +148,19 @@ def get_user_quiz_results_from_firebase(user_id: int) -> Optional[Dict[str, Any]
         logger.warning("Firebase get quiz results failed: %s", str(e))
         return None
 
+
+def save_user_stats_snapshot_to_firebase(user_id: int, stats_data: Dict[str, Any]) -> bool:
+    """Save user stats snapshot to Firebase Realtime Database"""
+    if not FIREBASE_SDK_AVAILABLE or not FIREBASE_AVAILABLE:
+        return False
+
+    try:
+        ref = db.reference(f"users/{user_id}/stats_snapshot")
+        ref.set(stats_data)
+        return True
+    except Exception as e:
+        logger.warning("Firebase save stats snapshot failed: %s", str(e))
+        return False
+
 # Initialize on module import
 FIREBASE_AVAILABLE = initialize_firebase()

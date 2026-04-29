@@ -14,6 +14,7 @@ from firebase_config import (
     save_user_progress_to_firebase,
     get_user_progress_from_firebase,
     get_user_quiz_results_from_firebase,
+    save_user_stats_snapshot_to_firebase,
     FIREBASE_AVAILABLE
 )
 
@@ -145,7 +146,7 @@ async def create_stats_snapshot(
         
         correct_answers = db.query(QuizResult).filter(
             QuizResult.student_id == current_user.id,
-            QuizResult.is_correct == True
+            QuizResult.is_correct.is_(True)
         ).count()
         
         accuracy = (correct_answers / total_quizzes * 100) if total_quizzes > 0 else 0
@@ -161,14 +162,8 @@ async def create_stats_snapshot(
             "created_at": datetime.utcnow().isoformat()
         }
         
-        # Save stats to Firebase under user's stats node
-        success = save_user_progress_to_firebase(
-            current_user.id,
-            {
-                **stats,
-                "node": "stats_snapshot"
-            }
-        )
+        # Save stats to a dedicated Firebase node (do not overwrite progress)
+        success = save_user_stats_snapshot_to_firebase(current_user.id, stats)
         
         if success:
             return stats
