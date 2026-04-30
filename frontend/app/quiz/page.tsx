@@ -40,6 +40,7 @@ interface SubmitResult {
   streak?: number
 }
 
+// API endpoint for quiz backend - uses env var or falls back to local IP
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
 const TOPICS = ["Fractions", "Algebra", "Loops", "Variables", "Functions", "Motion", "Grammar", "Reasoning"]
 
