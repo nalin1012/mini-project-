@@ -33,41 +33,56 @@ class GenerateNotesRequest(BaseModel):
 
 
 def _fallback_generate(raw: str, subject: Optional[str] = None) -> Dict[str, Any]:
-    """Generate fallback notes with subject-specific content if available"""
+    """Generate high-quality structured notes with detailed explanations"""
     lines = [l.strip() for l in raw.splitlines() if l.strip()]
-    bullets = lines[:12] if lines else ["Add some text and generate notes."]
-
-    # Try to use subject-specific content
+    
+    if not lines:
+        lines = ["Add some text and generate notes."]
+    
     bullet_notes = []
     flashcards = []
     revision_sheet = ""
+    quiz_questions = []
     
     if subject:
         try:
             subject_data = get_subject_content(subject)
             subject_notes = generate_subject_notes(subject)
             
-            # Build bullet notes from subject content
-            bullet_notes = [
-                {"topic": t["name"], "points": t.get("key_points", [])[:5]}
-                for t in subject_notes.get("topics", [])[:3]
-            ]
+            # Build detailed bullet notes from subject content with better structure
+            for topic_data in subject_notes.get("topics", [])[:4]:
+                topic_name = topic_data.get("name", "Topic")
+                points = topic_data.get("key_points", [])[:8]
+                explanation = topic_data.get("explanation", "")
+                
+                bullet_notes.append({
+                    "topic": topic_name,
+                    "explanation": explanation[:200] if explanation else f"Key concepts about {topic_name}",
+                    "points": points
+                })
             
-            # Get subject flashcards
-            flashcards = generate_subject_flashcards(subject, limit=8)
+            # Get high-quality subject flashcards with proper Q&A structure
+            flashcards = generate_subject_flashcards(subject, limit=12)
             
-            # Build revision sheet
+            # Build comprehensive revision sheet
             revision_data = generate_subject_revision(subject)
-            revision_sheet = f"""Revision Sheet: {subject}
+            revision_sheet = f"""COMPREHENSIVE REVISION SHEET: {subject.upper()}
 
-KEY POINTS:
-{chr(10).join([f"- {point}" for point in revision_data.get("key_points", [])[:5]])}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-COMMON MISTAKES TO AVOID:
-{chr(10).join([f"- {mistake}" for mistake in revision_data.get("common_mistakes", [])[:4]])}
+KEY CONCEPTS TO REMEMBER:
+{chr(10).join([f"  ✓ {point}" for point in revision_data.get("key_points", [])[:8]])}
 
-QUICK TIPS:
-{chr(10).join([f"- {tip}" for tip in revision_data.get("quick_tips", [])[:3]])}"""
+IMPORTANT FORMULAS & RULES:
+{chr(10).join([f"  • {formula}" for formula in revision_data.get("formulas", [])[:5]])}
+
+⚠️  COMMON MISTAKES TO AVOID:
+{chr(10).join([f"  ✗ {mistake}" for mistake in revision_data.get("common_mistakes", [])[:5]])}
+
+💡 QUICK TIPS FOR SUCCESS:
+{chr(10).join([f"  → {tip}" for tip in revision_data.get("quick_tips", [])[:4]])}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
             
             if bullet_notes and flashcards:
                 return {
@@ -78,17 +93,35 @@ QUICK TIPS:
         except Exception:
             pass
     
-    # Fallback to generic content if subject not found or error
+    # Fallback to generic content with better structure
     bullet_notes = [
-        {"topic": "Summary", "points": bullets[:8]},
-        {"topic": "Key Terms", "points": bullets[8:12] or []},
+        {
+            "topic": "Summary",
+            "explanation": "Main points from your content",
+            "points": lines[:8]
+        },
+        {
+            "topic": "Key Concepts",
+            "explanation": "Important terms and definitions",
+            "points": lines[8:14] if len(lines) > 8 else []
+        },
     ]
 
+    # Generate better flashcards with explanations
     flashcards = []
-    for p in bullets[:6]:
-        flashcards.append({"q": f"Explain: {p}", "a": p})
+    for i, point in enumerate(lines[:10]):
+        flashcards.append({
+            "q": f"Explain: {point[:60]}",
+            "a": f"{point}\n\nThis is a key concept that helps understand the topic better."
+        })
 
-    revision_sheet = "\n".join(["Revision Sheet", "", *[f"- {b}" for b in bullets[:12]]])
+    revision_sheet = f"""REVISION SHEET - Generated from Your Content
+
+KEY POINTS:
+{chr(10).join([f"  • {line}" for line in lines[:12]])}
+
+PRACTICE TIP:
+Review these points 2-3 times daily for better retention."""
 
     return {
         "bulletNotes": bullet_notes,

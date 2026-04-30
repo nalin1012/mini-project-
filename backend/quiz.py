@@ -18,86 +18,123 @@ from firebase_config import save_quiz_result_to_firebase
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
 # Comprehensive Quiz Bank - Structured by Topic and Difficulty
+# Enhanced with diverse question types and high-quality explanations
 QUIZ_BANK = {
     "Fractions": {
         "easy": [
-            {"question": "What is 1/2 + 1/4?", "options": ["3/4", "2/4", "1/6", "5/4"], "correct": 0, "explanation": "1/2 = 2/4, so 2/4 + 1/4 = 3/4", "subject": "Math"},
-            {"question": "Simplify 6/9", "options": ["2/3", "1/3", "3/6", "6/9"], "correct": 0, "explanation": "GCD of 6 and 9 is 3. 6÷3=2, 9÷3=3. So 6/9 = 2/3", "subject": "Math"},
-            {"question": "What is 2/3 - 1/3?", "options": ["1/3", "3/3", "1/6", "1/2"], "correct": 0, "explanation": "2/3 - 1/3 = 1/3 (same denominator)", "subject": "Math"},
+            {"question": "What is 1/2 + 1/4?", "options": ["3/4", "2/4", "1/6", "5/4"], "correct": 0, "explanation": "1/2 = 2/4, so 2/4 + 1/4 = 3/4. When adding fractions with the same denominator, add numerators only."},
+            {"question": "Simplify 6/9", "options": ["2/3", "1/3", "3/6", "6/9"], "correct": 0, "explanation": "GCD(6,9) = 3. So 6÷3=2 and 9÷3=3. Therefore 6/9 = 2/3 in lowest terms."},
+            {"question": "What is 2/3 - 1/3?", "options": ["1/3", "3/3", "1/6", "1/2"], "correct": 0, "explanation": "When subtracting fractions with the same denominator, subtract only the numerators: 2-1=1, keeping denominator 3."},
+            {"question": "Which fraction is equivalent to 1/2?", "options": ["4/8", "3/5", "2/5", "1/3"], "correct": 0, "explanation": "Equivalent fractions represent the same value. 4/8 = 4÷4 / 8÷4 = 1/2."},
+            {"question": "What is 3/4 of 12?", "options": ["9", "6", "8", "10"], "correct": 0, "explanation": "To find a fraction of a number, multiply: 3/4 × 12 = (3×12)/4 = 36/4 = 9."},
+            {"question": "Convert 1/4 to decimal", "options": ["0.25", "0.5", "0.75", "0.4"], "correct": 0, "explanation": "Divide numerator by denominator: 1÷4 = 0.25."},
+            {"question": "Which fraction is smallest?", "options": ["1/5", "1/3", "1/2", "1/4"], "correct": 0, "explanation": "When numerators are equal, the fraction with the largest denominator is smallest: 1/5 < 1/4 < 1/3 < 1/2."},
+            {"question": "What is 1/2 + 1/3?", "options": ["5/6", "2/5", "1/5", "2/6"], "correct": 0, "explanation": "Find LCD of 2 and 3 = 6. Convert: 1/2=3/6 and 1/3=2/6. Then 3/6+2/6=5/6."},
         ],
         "medium": [
-            {"question": "Convert 0.75 to a fraction", "options": ["3/4", "2/3", "7/10", "4/5"], "correct": 0, "explanation": "0.75 = 75/100 = 3/4", "subject": "Math"},
-            {"question": "What is 5/6 + 1/3?", "options": ["7/6", "6/9", "5/3", "1/2"], "correct": 0, "explanation": "5/6 + 2/6 = 7/6", "subject": "Math"},
+            {"question": "Convert 0.75 to a fraction", "options": ["3/4", "2/3", "7/10", "4/5"], "correct": 0, "explanation": "0.75 = 75/100 = (75÷25)/(100÷25) = 3/4."},
+            {"question": "What is 5/6 + 1/3?", "options": ["7/6", "6/9", "5/3", "1/2"], "correct": 0, "explanation": "Convert 1/3 to 2/6. Then 5/6 + 2/6 = 7/6 = 1⅙."},
+            {"question": "Simplify 12/15", "options": ["4/5", "3/5", "2/3", "1/2"], "correct": 0, "explanation": "GCD(12,15) = 3. So 12÷3=4 and 15÷3=5. Therefore 12/15 = 4/5."},
+            {"question": "What is 2/3 × 3/4?", "options": ["1/2", "5/7", "6/12", "1/3"], "correct": 0, "explanation": "Multiply numerators and denominators: (2×3)/(3×4) = 6/12 = 1/2. Cancel common factors."},
+            {"question": "Calculate 7/8 - 1/4", "options": ["5/8", "6/8", "4/8", "3/8"], "correct": 0, "explanation": "Convert 1/4 to 2/8. Then 7/8 - 2/8 = 5/8."},
         ],
         "hard": [
-            {"question": "Simplify (3/4 × 8/9) ÷ (2/3)", "options": ["1", "2/3", "4/3", "1/2"], "correct": 0, "explanation": "3/4 × 8/9 = 2/3. Then 2/3 ÷ 2/3 = 1", "subject": "Math"},
+            {"question": "Simplify (3/4 × 8/9) ÷ (2/3)", "options": ["1", "2/3", "4/3", "1/2"], "correct": 0, "explanation": "(3/4 × 8/9) = 24/36 = 2/3. Then (2/3) ÷ (2/3) = 1."},
+            {"question": "What is 5/6 of 36?", "options": ["30", "25", "20", "24"], "correct": 0, "explanation": "5/6 × 36 = (5×36)/6 = 180/6 = 30."},
+            {"question": "If 2/5 of a number is 14, what is the number?", "options": ["35", "28", "40", "25"], "correct": 0, "explanation": "Let x be the number. (2/5)x = 14. Multiply both sides by 5/2: x = 14 × 5/2 = 35."},
         ]
     },
     "Algebra": {
         "easy": [
-            {"question": "Solve: x + 5 = 12", "options": ["x = 7", "x = 17", "x = 2", "x = 12"], "correct": 0, "explanation": "x = 12 - 5 = 7", "subject": "Math"},
-            {"question": "Simplify: 2x + 3x", "options": ["5x", "6x", "2x", "3x"], "correct": 0, "explanation": "2x + 3x = 5x", "subject": "Math"},
+            {"question": "Solve: x + 5 = 12", "options": ["x = 7", "x = 17", "x = 2", "x = 12"], "correct": 0, "explanation": "Subtract 5 from both sides: x = 12 - 5 = 7."},
+            {"question": "Simplify: 2x + 3x", "options": ["5x", "6x", "2x", "3x"], "correct": 0, "explanation": "Combine like terms: 2x + 3x = 5x."},
+            {"question": "What is 3x when x = 2?", "options": ["6", "3", "5", "9"], "correct": 0, "explanation": "Substitute x=2: 3(2) = 6."},
+            {"question": "Solve: x - 4 = 1", "options": ["x = 5", "x = -3", "x = 4", "x = -4"], "correct": 0, "explanation": "Add 4 to both sides: x = 1 + 4 = 5."},
+            {"question": "Which is equivalent to 2x + x?", "options": ["3x", "2x²", "x²", "3"], "correct": 0, "explanation": "Combine like terms: 2x + x = 3x."},
         ],
         "medium": [
-            {"question": "Solve: 3x - 2 = 10", "options": ["x = 4", "x = 3", "x = 5", "x = 2"], "correct": 0, "explanation": "3x = 12, so x = 4", "subject": "Math"},
-            {"question": "Solve: 2(x + 3) = 14", "options": ["x = 4", "x = 5", "x = 7", "x = 8"], "correct": 0, "explanation": "x + 3 = 7, so x = 4", "subject": "Math"},
+            {"question": "Solve: 3x - 2 = 10", "options": ["x = 4", "x = 3", "x = 5", "x = 2"], "correct": 0, "explanation": "Add 2 to both sides: 3x = 12. Divide by 3: x = 4."},
+            {"question": "Solve: 2(x + 3) = 14", "options": ["x = 4", "x = 5", "x = 7", "x = 8"], "correct": 0, "explanation": "Divide by 2: x + 3 = 7. Subtract 3: x = 4."},
+            {"question": "Expand: 2(x + 5)", "options": ["2x + 10", "2x + 5", "x + 10", "2x + 7"], "correct": 0, "explanation": "Distribute 2: 2(x) + 2(5) = 2x + 10."},
+            {"question": "Factor: 3x + 9", "options": ["3(x + 3)", "3x(1 + 3)", "(x + 3)", "9(x + 1)"], "correct": 0, "explanation": "GCD(3, 9) = 3. Factor out: 3(x + 3)."},
         ],
         "hard": [
-            {"question": "Solve: 2x² + 3x - 2 = 0", "options": ["x = 1/2 or x = -2", "x = 1 or x = 2", "x = -1", "x = 0"], "correct": 0, "explanation": "Quadratic: (2x-1)(x+2) = 0", "subject": "Math"},
+            {"question": "Solve: 2x² + 3x - 2 = 0", "options": ["x = 1/2 or x = -2", "x = 1 or x = 2", "x = -1", "x = 0"], "correct": 0, "explanation": "Quadratic formula or factoring: (2x-1)(x+2) = 0, so x = 1/2 or x = -2."},
+            {"question": "Solve: 4x - 5 = 2x + 7", "options": ["x = 6", "x = 1", "x = 12", "x = 2"], "correct": 0, "explanation": "Collect x terms: 4x - 2x = 7 + 5. Simplify: 2x = 12. Divide: x = 6."},
         ]
     },
     "Loops": {
         "easy": [
-            {"question": "Output of: for i in range(3): print(i)", "options": ["0 1 2", "1 2 3", "0 1", "1 2"], "correct": 0, "explanation": "range(3) = [0, 1, 2]", "subject": "Programming"},
-            {"question": "Times executed: for i in range(5): pass", "options": ["5", "4", "6", "0"], "correct": 0, "explanation": "5 iterations", "subject": "Programming"},
+            {"question": "Output of: for i in range(3): print(i)", "options": ["0 1 2", "1 2 3", "0 1", "1 2"], "correct": 0, "explanation": "range(3) generates [0, 1, 2]. Each value is printed on a new line: 0, 1, 2."},
+            {"question": "Times executed: for i in range(5): pass", "options": ["5", "4", "6", "0"], "correct": 0, "explanation": "range(5) generates [0, 1, 2, 3, 4], so the loop runs 5 times."},
+            {"question": "What does range(0, 5) produce?", "options": ["[0, 1, 2, 3, 4]", "[1, 2, 3, 4, 5]", "[0, 1, 2, 3, 4, 5]", "[5]"], "correct": 0, "explanation": "range(start, stop) includes start but excludes stop: 0, 1, 2, 3, 4."},
+            {"question": "How many iterations: for i in range(2, 7)?", "options": ["5", "6", "7", "4"], "correct": 0, "explanation": "range(2, 7) = [2, 3, 4, 5, 6]. Count = 5 iterations."},
         ],
         "medium": [
-            {"question": "Output: for i in range(1, 4): print(i)", "options": ["1 2 3", "0 1 2 3", "1 2", "0 1 2"], "correct": 0, "explanation": "range(1,4) = [1, 2, 3]", "subject": "Programming"},
+            {"question": "Output: for i in range(1, 4): print(i)", "options": ["1 2 3", "0 1 2 3", "1 2", "0 1 2"], "correct": 0, "explanation": "range(1, 4) = [1, 2, 3]. Printed: 1, 2, 3."},
+            {"question": "Sum of: for i in range(1, 5): sum += i", "options": ["10", "15", "14", "20"], "correct": 0, "explanation": "1 + 2 + 3 + 4 = 10."},
+            {"question": "What is range(5, 2, -1)?", "options": ["[5, 4, 3]", "[5, 4, 3, 2]", "[2, 3, 4, 5]", "[5, 2]"], "correct": 0, "explanation": "Negative step goes backward: starts at 5, ends before 2, step -1 gives [5, 4, 3]."},
         ],
         "hard": [
-            {"question": "Sum: for i in range(1, 5): total += i", "options": ["10", "15", "14", "20"], "correct": 0, "explanation": "1+2+3+4 = 10", "subject": "Programming"},
+            {"question": "What does this print? for i in range(0, 10, 2): print(i)", "options": ["0 2 4 6 8", "0 1 2 3 4", "2 4 6 8 10", "1 3 5 7 9"], "correct": 0, "explanation": "Step of 2: starts at 0, adds 2 each iteration until reaching 10 (excluded). Output: 0, 2, 4, 6, 8."},
         ]
     },
     "Variables": {
         "easy": [
-            {"question": "Correct way to declare in Python", "options": ["x = 5", "var x = 5", "declare x = 5", "int x = 5"], "correct": 0, "explanation": "Python: x = 5", "subject": "Programming"},
-            {"question": "Value of x after: x = 5; x = x + 3", "options": ["8", "5", "3", "0"], "correct": 0, "explanation": "5 + 3 = 8", "subject": "Programming"},
+            {"question": "Correct way to declare in Python", "options": ["x = 5", "var x = 5", "declare x = 5", "int x = 5"], "correct": 0, "explanation": "Python uses simple assignment: x = 5. No 'var' or 'declare' keyword needed."},
+            {"question": "Value of x after: x = 5; x = x + 3", "options": ["8", "5", "3", "0"], "correct": 0, "explanation": "Start: x=5. Then: x = 5 + 3 = 8."},
+            {"question": "Type of: x = '5'", "options": ["String", "Integer", "Float", "Boolean"], "correct": 0, "explanation": "Single/double quotes indicate a string. '5' is text, not a number."},
+            {"question": "Which is a valid Python variable name?", "options": ["my_var", "my-var", "123var", "for"], "correct": 0, "explanation": "Variable names can contain letters, numbers, underscores, but cannot start with a number or use hyphens."},
         ],
         "medium": [
-            {"question": "Type of: x = '5'", "options": ["String", "Integer", "Float", "Boolean"], "correct": 0, "explanation": "Quotes make it a string", "subject": "Programming"},
+            {"question": "Type of: x = 3.14", "options": ["Float", "String", "Integer", "List"], "correct": 0, "explanation": "Numbers with decimal points are floats."},
+            {"question": "What is x after: x = 5; x *= 2", "options": ["10", "7", "5", "2"], "correct": 0, "explanation": "x *= 2 is shorthand for x = x * 2 = 5 * 2 = 10."},
         ],
     },
     "Functions": {
         "easy": [
-            {"question": "What does return do?", "options": ["Exits and provides value", "Starts loop", "Defines variable", "Prints"], "correct": 0, "explanation": "Return ends function and sends value", "subject": "Programming"},
+            {"question": "What does return do?", "options": ["Exits and provides value", "Starts loop", "Defines variable", "Prints"], "correct": 0, "explanation": "return ends the function and sends a value back to the caller."},
+            {"question": "Output: def add(a,b): return a+b; print(add(3,4))", "options": ["7", "3", "4", "34"], "correct": 0, "explanation": "add(3, 4) returns 3+4=7, which is printed."},
         ],
         "medium": [
-            {"question": "Output: def add(a,b): return a+b; print(add(3,4))", "options": ["7", "3", "4", "34"], "correct": 0, "explanation": "3 + 4 = 7", "subject": "Programming"},
+            {"question": "What does this return? def greet(name): return 'Hello ' + name; greet('World')", "options": ["Hello World", "Hello", "World", "greet"], "correct": 0, "explanation": "Concatenates 'Hello ' with 'World' to return 'Hello World'."},
+            {"question": "Function with no return statement returns?", "options": ["None", "0", "empty string", "error"], "correct": 0, "explanation": "Functions without explicit return statement return None by default."},
         ],
+        "hard": [
+            {"question": "What is the output? def func(x): return x * 2 if x > 5 else x + 1; func(6)", "options": ["12", "7", "6", "13"], "correct": 0, "explanation": "x=6 > 5, so returns x*2 = 6*2 = 12."},
+        ]
     },
     "Motion": {
         "easy": [
-            {"question": "What is velocity?", "options": ["Speed with direction", "Distance/time", "Acceleration", "Force"], "correct": 0, "explanation": "Vector quantity", "subject": "Science"},
-            {"question": "Speed = 100m in 10s?", "options": ["10 m/s", "1 m/s", "100 m/s", "1000 m/s"], "correct": 0, "explanation": "100/10 = 10 m/s", "subject": "Science"},
+            {"question": "What is velocity?", "options": ["Speed with direction", "Distance/time", "Acceleration", "Force"], "correct": 0, "explanation": "Velocity is a vector quantity (has magnitude and direction), while speed is scalar (magnitude only)."},
+            {"question": "Speed = 100m in 10s?", "options": ["10 m/s", "1 m/s", "100 m/s", "1000 m/s"], "correct": 0, "explanation": "Speed = distance/time = 100m / 10s = 10 m/s."},
+            {"question": "What are typical SI units for velocity?", "options": ["m/s", "km/h", "mph", "ft/s"], "correct": 0, "explanation": "SI unit for velocity is meters per second (m/s)."},
         ],
         "medium": [
-            {"question": "What is acceleration?", "options": ["Change in velocity/time", "Change distance", "Speed", "Force"], "correct": 0, "explanation": "Rate of velocity change", "subject": "Science"},
+            {"question": "What is acceleration?", "options": ["Change in velocity/time", "Change in distance", "Speed", "Force"], "correct": 0, "explanation": "Acceleration = (final velocity - initial velocity) / time. It's the rate of change of velocity."},
+            {"question": "A car goes from 0 to 20 m/s in 5 seconds. Acceleration is?", "options": ["4 m/s²", "20 m/s²", "5 m/s²", "100 m/s²"], "correct": 0, "explanation": "a = Δv/t = (20-0)/5 = 4 m/s²."},
         ],
     },
     "Grammar": {
         "easy": [
-            {"question": "Correct sentence", "options": ["She go to school", "She goes to school", "She going", "She gone"], "correct": 1, "explanation": "Third person singular", "subject": "English"},
+            {"question": "Correct sentence", "options": ["She go to school", "She goes to school", "She going", "She gone"], "correct": 1, "explanation": "Third person singular present tense: 'She goes' (not 'She go')."},
+            {"question": "Noun in: 'quick brown fox'", "options": ["quick", "brown", "fox", "the"], "correct": 2, "explanation": "'fox' is the noun (person, place, thing). 'quick' and 'brown' are adjectives describing the noun."},
+            {"question": "Which is a verb?", "options": ["run", "happy", "table", "blue"], "correct": 0, "explanation": "'run' is an action (verb). Others are noun or adjective."},
         ],
         "medium": [
-            {"question": "Noun in: 'quick brown fox'", "options": ["quick", "brown", "fox", "The"], "correct": 2, "explanation": "fox is the noun", "subject": "English"},
+            {"question": "Correct form: I _____ to the store yesterday", "options": ["went", "go", "goes", "am going"], "correct": 0, "explanation": "Past tense with 'yesterday': 'went' is correct."},
+            {"question": "Find the subject: 'The students completed the assignment'", "options": ["students", "completed", "assignment", "The"], "correct": 0, "explanation": "'The students' is the subject (who performs the action). 'completed' is the verb."},
         ],
     },
     "Reasoning": {
         "easy": [
-            {"question": "Pattern: 2, 4, 6, 8, ?", "options": ["10", "9", "12", "16"], "correct": 0, "explanation": "+2 each time", "subject": "Aptitude"},
+            {"question": "Pattern: 2, 4, 6, 8, ?", "options": ["10", "9", "12", "16"], "correct": 0, "explanation": "Pattern: add 2 each time. 2+2=4, 4+2=6, 6+2=8, 8+2=10."},
+            {"question": "Cats are animals, Fluffy is cat, then?", "options": ["Fluffy is animal", "Animals are cats", "Fluffy not animal", "Cats not animals"], "correct": 0, "explanation": "Logical deduction: If all cats are animals and Fluffy is a cat, then Fluffy must be an animal."},
+            {"question": "Pattern: 1, 4, 9, 16, ?", "options": ["25", "20", "24", "30"], "correct": 0, "explanation": "Perfect squares: 1²=1, 2²=4, 3²=9, 4²=16, 5²=25."},
         ],
         "medium": [
-            {"question": "Cats are animals, Fluffy is cat, then?", "options": ["Fluffy is animal", "Animals are cats", "Fluffy not animal", "Cats not animals"], "correct": 0, "explanation": "Logical deduction", "subject": "Aptitude"},
+            {"question": "If A > B and B > C, then A _____ C", "options": [">", "<", "=", "not comparable"], "correct": 0, "explanation": "Transitive property: A > B and B > C implies A > C."},
+            {"question": "Odd one out: 2, 4, 6, 9", "options": ["9", "2", "6", "4"], "correct": 0, "explanation": "2, 4, 6 are even. 9 is odd. Therefore 9 is the odd one out."},
         ],
     }
 }
@@ -150,7 +187,24 @@ async def generate_quiz(
         raise HTTPException(status_code=500, detail="No questions available")
     
     selected = random.sample(questions_list, min(count, len(questions_list)))
-    quiz = [{"question": q["question"], "options": q["options"], "difficulty": difficulty} for q in selected]
+    
+    # Create quiz with randomized options
+    quiz = []
+    for q in selected:
+        # Shuffle options while tracking correct answer
+        options = q["options"].copy()
+        correct_idx = q["correct"]
+        correct_option = options[correct_idx]
+        random.shuffle(options)
+        new_correct = options.index(correct_option)
+        
+        quiz.append({
+            "question": q["question"],
+            "options": options,
+            "difficulty": difficulty,
+            "explanation": q.get("explanation", ""),
+            "correct": new_correct
+        })
     
     return {"topic": topic, "difficulty": difficulty, "total_questions": len(quiz), "questions": quiz}
 
