@@ -274,48 +274,5 @@ async def logout(
     """Logout user (client should delete token)"""
     return {"message": "Logged out successfully"}
 
-    
-    # Create new user
-    hashed_password = get_password_hash(user_data.password)
-    new_user = User(
-        email=user_data.email,
-        hashed_password=hashed_password,
-        name=user_data.name,
-        role="student"
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    # Create token
-    access_token = create_access_token(data={"sub": str(new_user.id)})
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": UserResponse.from_orm(new_user)
-    }
-
-@router.post("/login", response_model=TokenResponse)
-async def login(login_data: UserLogin, db: Session = Depends(get_db)):
-    """Login user"""
-    user = db.query(User).filter(User.email == login_data.email).first()
-    
-    if not user or not verify_password(login_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    
-    access_token = create_access_token(data={"sub": str(user.id)})
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": UserResponse.from_orm(user)
-    }
-
-@router.get("/me", response_model=UserResponse)
-async def get_current_user_endpoint(current_user: User = Depends(get_current_user)):
-    """Get current user info"""
-    return UserResponse.from_orm(current_user)
-
 
 
