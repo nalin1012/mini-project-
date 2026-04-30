@@ -49,7 +49,7 @@ export function LoginForm() {
 				if (data.detail) {
 					if (typeof data.detail === "string") {
 						if (data.detail.includes("Invalid")) {
-							errorMessage = "Invalid email or password"
+							errorMessage = "Invalid email or password. If you forgot your password, use the 'Forgot password' link."
 						} else if (data.detail.includes("deactivated")) {
 							errorMessage = "Your account has been deactivated"
 						} else {
