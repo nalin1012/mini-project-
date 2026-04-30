@@ -177,6 +177,13 @@ async def login(
     user = db.query(User).filter(User.email == login_data.email).first()
     
     if not user or not verify_password(login_data.password, user.hashed_password):
+        # Log failed login attempts with non-sensitive context (do not log raw passwords)
+        client_ip = get_client_ip(request)
+        try:
+            # Use lightweight logging to aid debugging in production
+            print(f"[WARNING] Failed login attempt for email={login_data.email} from ip={client_ip}")
+        except Exception:
+            pass
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     if not user.is_active:
