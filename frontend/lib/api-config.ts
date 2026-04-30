@@ -59,7 +59,9 @@ export const apiCall = async (
         if (typeof window !== "undefined") {
           localStorage.removeItem("access_token");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+          // preserve current path for post-login redirect
+          const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = `/login?next=${redirect}`;
         }
       }
       
@@ -71,7 +73,8 @@ export const apiCall = async (
     
     return await response.json();
   } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
+    // Log context to help debugging; avoid leaking sensitive data
+    console.error(`API Error [${endpoint}]:`, { message: error?.message || String(error) });
     throw error;
   }
 };
