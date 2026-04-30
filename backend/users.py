@@ -36,6 +36,10 @@ async def list_users(
     """
     List all users (admin only).
     Returns paginated list of users with their stats.
+    
+    Query params:
+    - skip: number of records to skip (for pagination)
+    - limit: max records to return (default 100)
     """
     # Check if user is admin
     if current_user.role != "admin":
