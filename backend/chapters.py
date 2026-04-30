@@ -20,6 +20,8 @@ def _slug(text: str) -> str:
     return text.strip("-") or "node"
 
 
+# Curriculum syllabus organized by subject, chapter, and subtopic
+# Used for chapter navigation and progress tracking
 SYLLABUS: Dict[str, Any] = {
     "Math": {
         "Chapters": {
