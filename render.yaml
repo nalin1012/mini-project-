@@ -32,6 +32,12 @@ services:
         sync: false  # ⚠️ YOU MUST SET THIS IN RENDER DASHBOARD
       - key: FIREBASE_DATABASE_URL
         sync: false  # ⚠️ YOU MUST SET THIS IN RENDER DASHBOARD
+      - key: ADMIN_EMAIL
+        value: admin@test.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: ADMIN_NAME
+        value: "Admin User"
     
     # Root directory
     rootDir: backend

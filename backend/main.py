@@ -47,6 +47,9 @@ from tutor import router as tutor_chat_router
 from chapters import router as chapters_router
 from notes import router as notes_router
 from database import init_db
+from database import SessionLocal
+from models import User
+from auth import get_password_hash
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -72,6 +75,36 @@ def on_startup():
     try:
         init_db()
         logger.info("✅ Application startup successful - database ready")
+        # Auto-create admin user in production if ADMIN_EMAIL and ADMIN_PASSWORD are provided
+        admin_email = os.getenv("ADMIN_EMAIL")
+        admin_password = os.getenv("ADMIN_PASSWORD")
+        admin_name = os.getenv("ADMIN_NAME", "Admin")
+        if admin_email and admin_password:
+            try:
+                db = SessionLocal()
+                existing = db.query(User).filter(User.email == admin_email).first()
+                if existing:
+                    logger.info(f"Admin check: user {admin_email} already exists (role={existing.role})")
+                    if existing.role != "admin":
+                        existing.role = "admin"
+                        existing.is_active = True
+                        db.add(existing)
+                        db.commit()
+                        logger.info(f"Upgraded user {admin_email} to admin")
+                else:
+                    hashed = get_password_hash(admin_password)
+                    user = User(email=admin_email, name=admin_name, hashed_password=hashed, role="admin", is_active=True)
+                    db.add(user)
+                    db.commit()
+                    db.refresh(user)
+                    logger.info(f"Created admin user {admin_email} (id={user.id})")
+            except Exception as e:
+                logger.error(f"Failed to create admin user on startup: {e}")
+            finally:
+                try:
+                    db.close()
+                except Exception:
+                    pass
     except Exception as e:
         logger.error(f"⚠️ Database initialization warning: {str(e)}")
         logger.info("⚠️ Application will attempt to use fallback database")
