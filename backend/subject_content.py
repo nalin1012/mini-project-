@@ -143,6 +143,7 @@ SUBJECT_CONTENT = {
                     {"q": "Speed vs velocity difference", "a": "Speed has no direction, velocity does"},
                     {"q": "Potential energy formula", "a": "PE = mgh (mass × gravity × height)"}
                 ],
+                "extra_notes": "Key idea: always check units (SI units: meters, kilograms, seconds) when solving physics numerical problems.",
                 "common_mistakes": ["Confusing speed and velocity", "Forgetting that acceleration can be negative", "Using wrong formula for motion problems"]
             },
             "Chemistry": {
