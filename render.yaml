@@ -25,9 +25,9 @@ services:
       - key: JWT_SECRET
         sync: false  # ⚠️ YOU MUST SET THIS IN RENDER DASHBOARD
       - key: CORS_ORIGINS
-        value: https://your-frontend-domain.vercel.app
+        value: https://mini-project-lyart-kappa.vercel.app,https://mini-project-nalins-projects-b6ca8bda.vercel.app,http://localhost:3000
       - key: FRONTEND_URL
-        value: https://your-frontend-domain.vercel.app
+        value: https://mini-project-lyart-kappa.vercel.app
       - key: GOOGLE_API_KEY
         sync: false  # ⚠️ YOU MUST SET THIS IN RENDER DASHBOARD
       - key: FIREBASE_DATABASE_URL
