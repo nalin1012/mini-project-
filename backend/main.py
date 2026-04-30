@@ -69,8 +69,13 @@ app.add_middleware(
 # Initialize database
 @app.on_event("startup")
 def on_startup():
-    init_db()
-    logger.info("Database initialized successfully")
+    try:
+        init_db()
+        logger.info("✅ Application startup successful - database ready")
+    except Exception as e:
+        logger.error(f"⚠️ Database initialization warning: {str(e)}")
+        logger.info("⚠️ Application will attempt to use fallback database")
+        # Don't crash the app - let it start with fallback
 
 # Include routers
 app.include_router(auth_router)
