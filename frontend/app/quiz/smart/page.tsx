@@ -3,12 +3,10 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect } from "react"
-import { useSearchParams } from "next/navigation"
 
 export default function SmartQuizRedirectPage() {
-  const params = useSearchParams()
-
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
     const topic = params.get("topic")
     if (topic) {
       localStorage.setItem("selected_topic", topic)
