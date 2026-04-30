@@ -52,6 +52,9 @@ interface ProgressItem {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
 
+// Fallback API URL for local development if primary fails
+const FALLBACK_API_URL = "http://localhost:8001"
+
 export default function DashboardPage() {
 	const router = useRouter()
 	const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
