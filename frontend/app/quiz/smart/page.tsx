@@ -18,7 +18,7 @@ export default function SmartQuizRedirectPage() {
     }
 
     window.location.href = "/quiz"
-  }, [params])
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center px-4">
