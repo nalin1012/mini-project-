@@ -8,6 +8,10 @@ import logging
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./learning_platform.db"
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./learning_platform.db")
 
+# Convert postgresql:// to postgresql+psycopg:// for SQLAlchemy with psycopg3
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
 logger = logging.getLogger(__name__)
 
 # Configure engine options (pooling only where it applies)

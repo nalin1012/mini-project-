@@ -16,7 +16,7 @@ from schemas import UserRegister, UserLogin, TokenResponse, UserResponse
 from firebase_config import verify_firebase_token, FIREBASE_AVAILABLE
 
 # Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production-use-env-var")
+SECRET_KEY = os.getenv("JWT_SECRET", os.getenv("SECRET_KEY", "your-secret-key-change-in-production-use-env-var"))
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 * 24  # 30 days
 
