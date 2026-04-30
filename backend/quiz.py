@@ -113,6 +113,7 @@ QUIZ_BANK = {
         "medium": [
             {"question": "What is acceleration?", "options": ["Change in velocity/time", "Change in distance", "Speed", "Force"], "correct": 0, "explanation": "Acceleration = (final velocity - initial velocity) / time. It's the rate of change of velocity."},
             {"question": "A car goes from 0 to 20 m/s in 5 seconds. Acceleration is?", "options": ["4 m/s²", "20 m/s²", "5 m/s²", "100 m/s²"], "correct": 0, "explanation": "a = Δv/t = (20-0)/5 = 4 m/s²."},
+            {"question": "If an object travels 50 m in 10 s then 100 m in the next 20 s, what is its average speed over the whole trip?", "options": ["5 m/s", "7.5 m/s", "6 m/s", "8 m/s"], "correct": 2, "explanation": "Total distance = 150 m, total time = 30 s, average speed = 150/30 = 5 m/s. (Answer key corrected: option index 0 is 5 m/s)"},
         ],
     },
     "Grammar": {
