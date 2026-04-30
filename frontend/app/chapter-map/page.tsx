@@ -28,7 +28,7 @@ type Summary = {
   example: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://mini-project-xpie.onrender.com"
 
 function StatusBadge({ status }: { status: ChapterNode["status"] }) {
   if (status === "done") return <Badge className="bg-green-500/15 text-green-300 border border-green-500/30">Done</Badge>

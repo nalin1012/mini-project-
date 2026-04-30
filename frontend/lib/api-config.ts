@@ -5,7 +5,7 @@
  */
 
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001",
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "https://mini-project-xpie.onrender.com",
   ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT || "development",
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "AI Learning Platform",
 };

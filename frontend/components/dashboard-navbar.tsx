@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://mini-project-xpie.onrender.com"
 
 interface UserData {
   id: number

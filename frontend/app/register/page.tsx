@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://mini-project-xpie.onrender.com"
 
 export default function RegisterPage() {
 	const router = useRouter()

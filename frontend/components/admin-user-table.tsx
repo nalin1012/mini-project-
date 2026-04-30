@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://mini-project-xpie.onrender.com"
 
 interface User {
   id: number

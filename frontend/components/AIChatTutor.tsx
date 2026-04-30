@@ -17,7 +17,7 @@ type TutorChatResponse = {
   sessionId?: string
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://mini-project-xpie.onrender.com'
 
 function nowTimestamp(ts: number) {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
