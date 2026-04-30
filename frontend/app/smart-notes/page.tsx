@@ -67,7 +67,17 @@ function FlashcardView({ cards }: { cards: Flashcard[] }) {
             key={idx}
             type="button"
             onClick={() => setFlipped((p) => ({ ...p, [idx]: !p[idx] }))}
-            className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:bg-white/7"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setFlipped((p) => ({ ...p, [idx]: !p[idx] }))
+              }
+            }}
+            aria-pressed={isFlip}
+            aria-label={`Flashcard ${idx + 1}: ${isFlip ? 'Answer' : 'Question'}`}
+            tabIndex={0}
+            role="button"
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:bg-white/7 focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{ perspective: 900 }}
           >
             <div
@@ -77,12 +87,12 @@ function FlashcardView({ cards }: { cards: Flashcard[] }) {
               <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
                 <div className="text-xs font-semibold text-muted-foreground">Question</div>
                 <div className="mt-2 text-sm text-white">{c.q}</div>
-                <div className="mt-4 text-xs text-muted-foreground">Tap to flip</div>
+                <div className="mt-4 text-xs text-muted-foreground">Click or press Enter/Space to flip</div>
               </div>
               <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                 <div className="text-xs font-semibold text-muted-foreground">Answer</div>
                 <div className="mt-2 whitespace-pre-wrap text-sm text-white">{c.a}</div>
-                <div className="mt-4 text-xs text-muted-foreground">Tap to flip back</div>
+                <div className="mt-4 text-xs text-muted-foreground">Click or press Enter/Space to flip back</div>
               </div>
             </div>
           </button>
