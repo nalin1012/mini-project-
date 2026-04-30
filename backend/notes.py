@@ -33,7 +33,16 @@ class GenerateNotesRequest(BaseModel):
 
 
 def _fallback_generate(raw: str, subject: Optional[str] = None) -> Dict[str, Any]:
-    """Generate high-quality structured notes with detailed explanations"""
+    """Generate high-quality structured notes with detailed explanations.
+
+    Returns a dict with keys:
+    - `bulletNotes`: list of {topic, explanation, points[]}
+    - `flashcards`: list of {q, a}
+    - `revisionSheet`: multi-line string
+
+    This function prefers subject-specific curriculum when available and
+    falls back to extracting key lines from the raw text.
+    """
     lines = [l.strip() for l in raw.splitlines() if l.strip()]
     
     if not lines:
@@ -107,12 +116,13 @@ IMPORTANT FORMULAS & RULES:
         },
     ]
 
-    # Generate better flashcards with explanations
+    # Generate better flashcards with brief questions and concrete answers.
     flashcards = []
     for i, point in enumerate(lines[:10]):
+        q_text = point if len(point) < 80 else point[:77].rstrip() + '...'
         flashcards.append({
-            "q": f"Explain: {point[:60]}",
-            "a": f"{point}\n\nThis is a key concept that helps understand the topic better."
+            "q": f"What is the key idea: {q_text}",
+            "a": f"{point}\n\nNote: review the surrounding paragraph for full context."
         })
 
     revision_sheet = f"""REVISION SHEET - Generated from Your Content
