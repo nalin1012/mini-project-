@@ -30,6 +30,11 @@ async def get_dashboard_summary(
     """
     Get complete dashboard summary for the user
     Includes performance metrics and personalized recommendations
+    
+    Returns: {
+        user_name, total_quizzes_completed, total_questions_attempted,
+        correct_answers, overall_accuracy, points, streak, weak_areas, study_topics
+    }
     """
     try:
         # Get all learning progress for the user
