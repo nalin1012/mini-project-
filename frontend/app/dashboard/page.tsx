@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
 	BookOpen,
 	Brain,
@@ -13,6 +14,8 @@ import {
 	Trophy,
 	AlertCircle,
 	Loader,
+	ArrowRight,
+	Zap,
 } from "lucide-react"
 import { DashboardNavbar } from "@/components/dashboard-navbar"
 import { Button } from "@/components/ui/button"
@@ -36,10 +39,23 @@ interface DashboardData {
 	study_topics: string[]
 }
 
+interface ProgressItem {
+	topic: string
+	subject_id: number
+	mastery_score: number
+	sessions_completed: number
+	total_questions: number
+	correct_answers: number
+	status: string
+	last_updated: string
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
 
 export default function DashboardPage() {
+	const router = useRouter()
 	const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+	const [allProgress, setAllProgress] = useState<ProgressItem[]>([])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +68,7 @@ export default function DashboardPage() {
 					return
 				}
 
+				// Fetch dashboard summary
 				const response = await fetch(
 					`${API_BASE_URL}/api/knowledge-gap/dashboard-summary`,
 					{
@@ -76,6 +93,48 @@ export default function DashboardPage() {
 				const data = await response.json()
 				setDashboardData(data)
 				setError(null)
+
+				// Fetch all progress with timeout
+				try {
+					const controller = new AbortController()
+					const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+
+					const progressRes = await fetch(
+						`${API_BASE_URL}/api/knowledge-gap/progress/all`,
+						{
+							headers: {
+								Authorization: `Bearer ${token}`,
+								"Content-Type": "application/json",
+							},
+							signal: controller.signal,
+						}
+					)
+
+					clearTimeout(timeoutId)
+
+					if (progressRes.ok) {
+						const progressData = await progressRes.json()
+						if (progressData && Array.isArray(progressData) && progressData.length > 0) {
+							setAllProgress(progressData)
+						} else {
+							// No data yet - show empty progress
+							setAllProgress([])
+						}
+					} else {
+						console.error("Failed to fetch progress:", progressRes.status)
+						// Continue with empty progress
+						setAllProgress([])
+					}
+				} catch (progressErr: any) {
+					if (progressErr.name === 'AbortError') {
+						console.error("Progress fetch timeout")
+						setError("Some data took too long to load, but your dashboard is ready.")
+					} else {
+						console.error("Error fetching progress:", progressErr)
+					}
+					// Don't block the dashboard from loading
+					setAllProgress([])
+				}
 			} catch (err) {
 				console.error("Error fetching dashboard:", err)
 				const errorMessage = err instanceof Error ? err.message : "Failed to load dashboard data"
@@ -123,7 +182,7 @@ export default function DashboardPage() {
 			title: "Math",
 			description: "Build strong foundations in algebra and reasoning.",
 			icon: Calculator,
-			topic: "Algebra",
+			topic: "Math",
 		},
 		{
 			title: "Science",
@@ -135,7 +194,7 @@ export default function DashboardPage() {
 			title: "Programming",
 			description: "Learn modern coding skills with guided projects.",
 			icon: Code2,
-			topic: "Loops",
+			topic: "Programming",
 		},
 		{
 			title: "English",
@@ -151,9 +210,19 @@ export default function DashboardPage() {
 		},
 	]
 
-	const startQuiz = (topic: string) => {
-		localStorage.setItem("selected_topic", topic)
-		window.location.href = "/quiz"
+	const getSubjectProgress = (subjectName: string) => {
+		if (!Array.isArray(allProgress) || allProgress.length === 0) {
+			return undefined
+		}
+		return allProgress.find(
+			p => p.topic.toLowerCase().includes(subjectName.toLowerCase()) ||
+				 subjectName.toLowerCase().includes(p.topic.toLowerCase())
+		)
+	}
+
+	const startLearning = (subjectName: string) => {
+		const slug = subjectName.toLowerCase().replace(/\s+/g, '-')
+		router.push(`/learning/${slug}`)
 	}
 
 	return (
@@ -235,19 +304,91 @@ export default function DashboardPage() {
 							})}
 						</section>
 
+						{/* Continue Learning Section - Only show if user has progress */}
+				{!loading && Array.isArray(allProgress) && allProgress.length > 0 && (
+					<section className="glass rounded-2xl p-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+						<div className="flex items-center justify-between mb-4">
+							<div className="flex items-center gap-2">
+								<Zap className="h-5 w-5 text-green-400" />
+								<h2 className="text-lg font-semibold text-white">Continue Learning</h2>
+							</div>
+							<Link href="/subjects">
+								<Button variant="outline" className="border-green-500/30 text-green-400 hover:bg-green-500/10">
+									View All
+								</Button>
+							</Link>
+						</div>
+						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+							{allProgress.filter(item => item.mastery_score > 0 || item.status === "In Progress").slice(0, 3).map((item) => {
+										const itemMasteryPercentage = Math.round(item.mastery_score * 100)
+										const progressBarColor = itemMasteryPercentage >= 80 ? 'bg-green-500' : itemMasteryPercentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+										return (
+											<div
+												key={item.topic}
+												className="rounded-lg bg-black/30 p-4 border border-green-500/20 hover:border-green-400/40 transition-all cursor-pointer"
+												onClick={() => startLearning(item.topic)}
+											>
+												<div className="flex items-center justify-between mb-3">
+													<p className="font-semibold text-green-300">{item.topic}</p>
+													<span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded">
+														{itemMasteryPercentage}%
+													</span>
+												</div>
+												<div className="w-full bg-muted rounded-full h-2 mb-2">
+													<div 
+														className={`h-full rounded-full transition-all ${progressBarColor}`}
+														style={{ width: `${itemMasteryPercentage}%` }}
+													/>
+												</div>
+												<p className="text-xs text-gray-400">{item.sessions_completed} sessions • {item.total_questions} questions</p>
+											</div>
+										)
+									})}
+								</div>
+							</section>
+						)}
+
+						{/* New User Getting Started Section */}
+						{!loading && Array.isArray(allProgress) && allProgress.length === 0 && (
+							<section className="glass rounded-2xl p-8 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+								<div className="flex flex-col gap-4">
+									<div className="flex items-center gap-2">
+										<BookOpen className="h-6 w-6 text-blue-400" />
+										<h2 className="text-lg font-semibold text-white">Welcome to Your Learning Journey!</h2>
+									</div>
+									<p className="text-gray-300">
+										You haven't started any quizzes yet. Start learning today to build your mastery and track your progress!
+									</p>
+									<div className="flex flex-wrap gap-3">
+										<Link href="/quiz">
+											<Button className="bg-blue-600 text-white hover:bg-blue-700">
+												Take Your First Quiz
+											</Button>
+										</Link>
+										<Link href="/subjects">
+											<Button variant="outline" className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
+												Explore All Subjects
+											</Button>
+										</Link>
+									</div>
+								</div>
+							</section>
+						)}
+
 						{/* Weak Areas Alert */}
 						{dashboardData && dashboardData.weak_areas.length > 0 && (
 							<section className="glass rounded-2xl p-6 bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20">
 								<div className="flex flex-col gap-4">
 									<div className="flex items-center gap-2">
 										<AlertCircle className="h-5 w-5 text-orange-400" />
-										<h2 className="text-lg font-semibold text-white">Areas for Improvement</h2>
+										<h2 className="text-lg font-semibold text-white">Focus Areas</h2>
 									</div>
 									<div className="grid gap-3 md:grid-cols-2">
 										{dashboardData.weak_areas.map((area) => (
 											<div
 												key={area.topic}
-												className="rounded-lg bg-black/30 p-4 border border-orange-500/20"
+												className="rounded-lg bg-black/30 p-4 border border-orange-500/20 hover:border-orange-400/40 transition-all cursor-pointer"
+												onClick={() => startLearning(area.topic)}
 											>
 												<div className="flex items-center justify-between mb-2">
 													<p className="font-semibold text-orange-300">{area.topic}</p>
@@ -255,12 +396,15 @@ export default function DashboardPage() {
 														{Math.round(area.mastery_score * 100)}% mastery
 													</span>
 												</div>
-												<p className="text-sm text-gray-400">{area.suggested_resources}</p>
+												<p className="text-sm text-gray-400 mb-3">{area.recommendation}</p>
 												<Button
-													onClick={() => startQuiz(area.topic)}
-													className="mt-3 w-full bg-orange-600 text-white hover:bg-orange-700 text-xs"
+													onClick={(e) => {
+														e.stopPropagation()
+														startLearning(area.topic)
+													}}
+													className="w-full bg-orange-600 text-white hover:bg-orange-700 text-xs"
 												>
-													Practice {area.topic}
+													Focus on This Area
 												</Button>
 											</div>
 										))}
@@ -272,7 +416,7 @@ export default function DashboardPage() {
 						{/* Subjects Section */}
 						<section id="subjects" className="flex flex-col gap-6">
 							<div className="flex flex-col gap-2">
-								<h2 className="text-2xl font-semibold text-white">Explore Subjects</h2>
+								<h2 className="text-2xl font-semibold text-white">All Subjects</h2>
 								<p className="text-sm text-gray-400">
 									Curated learning paths designed to keep you motivated and on track.
 								</p>
@@ -280,28 +424,46 @@ export default function DashboardPage() {
 							<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 								{subjects.map((subject) => {
 									const Icon = subject.icon
+									const progress = getSubjectProgress(subject.title)
+									const masteryPercentage = progress ? Math.round(progress.mastery_score * 100) : 0
 									return (
 										<div
 											key={subject.title}
 											className="glass hover-float rounded-2xl p-6 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-blue-400/30 transition-all"
 										>
-											<div className="flex items-center gap-3">
-												<div className="flex size-12 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-400">
-													<Icon className="size-5" />
+											<div className="flex items-center justify-between mb-3">
+												<div className="flex items-center gap-3">
+													<div className="flex size-12 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-400">
+														<Icon className="size-5" />
+													</div>
+													<div>
+														<h3 className="text-lg font-semibold text-white">{subject.title}</h3>
+														<p className="text-xs text-gray-500">AI-assisted learning</p>
+													</div>
 												</div>
-												<div>
-													<h3 className="text-lg font-semibold text-white">{subject.title}</h3>
-													<p className="text-xs text-gray-500">AI-assisted learning</p>
-												</div>
+												{progress && (
+													<span className="text-sm font-bold text-blue-400">{masteryPercentage}%</span>
+												)}
 											</div>
-											<p className="mt-4 text-sm text-gray-400">{subject.description}</p>
-											<div className="mt-6 flex items-center justify-between">
+											<p className="text-sm text-gray-400 mb-4">{subject.description}</p>
+											{progress && (
+												<div className="mb-4">
+													<div className="w-full bg-muted rounded-full h-2">
+														<div 
+															className={`h-full rounded-full transition-all ${masteryPercentage >= 80 ? 'bg-green-500' : masteryPercentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+															style={{ width: `${masteryPercentage}%` }}
+														/>
+													</div>
+													<p className="text-xs text-gray-500 mt-2">{progress.sessions_completed} sessions • {progress.total_questions} questions</p>
+												</div>
+											)}
+											<div className="flex items-center justify-between gap-2">
 												<span className="text-xs text-blue-400/80">New modules weekly</span>
 												<Button
-													onClick={() => startQuiz(subject.topic)}
-													className="bg-blue-600 text-white hover:bg-blue-700 text-xs"
+													onClick={() => startLearning(subject.title)}
+													className="bg-blue-600 text-white hover:bg-blue-700 text-xs flex items-center gap-1"
 												>
-													Start Learning
+													Learn <ArrowRight className="size-3" />
 												</Button>
 											</div>
 										</div>

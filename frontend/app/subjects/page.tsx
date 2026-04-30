@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { BookOpen, Brain, Calculator, Code2, FlaskConical, Languages } from "lucide-react"
 import { DashboardNavbar } from "@/components/dashboard-navbar"
@@ -45,6 +46,12 @@ const subjects = [
 ]
 
 export default function SubjectsPage() {
+  const router = useRouter()
+
+  const handleStartLearning = (subject: string) => {
+    router.push(`/learning/${subject.toLowerCase().replace(/\s+/g, '-')}`)
+  }
+
   return (
     <div className="min-h-screen">
       <DashboardNavbar />
@@ -85,7 +92,10 @@ export default function SubjectsPage() {
                 <p className="mt-2 text-sm text-muted-foreground">{subject.description}</p>
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-xs text-primary/80">AI Curated Path</span>
-                  <Button className="neon-ring bg-primary/15 text-primary hover:bg-primary/25">
+                  <Button 
+                    onClick={() => handleStartLearning(subject.title)}
+                    className="neon-ring bg-primary/15 text-primary hover:bg-primary/25"
+                  >
                     Start Learning
                   </Button>
                 </div>

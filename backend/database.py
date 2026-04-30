@@ -43,4 +43,4 @@ def get_db():
 def init_db():
     """Create all database tables (only if they don't exist)"""
     Base.metadata.create_all(bind=engine)
-    logger.info("✓ Database tables initialized successfully")
+    logger.info("Database tables initialized successfully")

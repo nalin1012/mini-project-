@@ -32,6 +32,9 @@ from recommendations import router as recommendation_router
 from users import router as users_router
 from admin import router as admin_router
 from firebase_service import router as firebase_router
+from tutor import router as tutor_chat_router
+from chapters import router as chapters_router
+from notes import router as notes_router
 from database import init_db
 
 # Initialize FastAPI app
@@ -56,7 +59,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     init_db()
-    logger.info("✓ Database initialized successfully")
+    logger.info("Database initialized successfully")
 
 # Include routers
 app.include_router(auth_router)
@@ -67,6 +70,9 @@ app.include_router(progress_router)
 app.include_router(tutor_router)
 app.include_router(recommendation_router)
 app.include_router(firebase_router)
+app.include_router(tutor_chat_router)
+app.include_router(chapters_router)
+app.include_router(notes_router)
 
 @app.get("/")
 def home():
@@ -98,6 +104,52 @@ def get_subjects():
             {"name": "Aptitude", "icon": "Brain", "description": "Sharpen logic and reasoning."},
         ]
     }
+
+@app.get("/api/subjects/{subject}/overview")
+def get_subject_overview(subject: str):
+    """Get detailed overview of a specific subject with topics and content"""
+    try:
+        from subject_content import get_subject_content, get_topic_content
+        
+        subject_data = get_subject_content(subject)
+        
+        return {
+            "subject": subject,
+            "overview": subject_data.get("overview", ""),
+            "topics": subject_data.get("topics", []),
+            "content_available": bool(subject_data.get("content", {})),
+            "num_topics": len(subject_data.get("content", {}))
+        }
+    except Exception as e:
+        logger.error(f"Error getting subject overview: {e}")
+        return {
+            "subject": subject,
+            "overview": f"Learning material for {subject}",
+            "topics": [],
+            "content_available": False,
+            "error": str(e)
+        }
+
+@app.get("/api/subjects/{subject}/topics/{topic}")
+def get_subject_topic(subject: str, topic: str):
+    """Get detailed content for a specific topic in a subject"""
+    try:
+        from subject_content import get_topic_content
+        
+        content = get_topic_content(subject, topic)
+        
+        return {
+            "subject": subject,
+            "topic": topic,
+            "explanation": content.get("explanation", ""),
+            "keyPoints": content.get("key_points", []),
+            "formulas": content.get("formulas", []),
+            "realLife": content.get("real_life", ""),
+            "flashcards": content.get("flashcards", [])
+        }
+    except Exception as e:
+        logger.error(f"Error getting topic content: {e}")
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)

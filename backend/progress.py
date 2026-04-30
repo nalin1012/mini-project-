@@ -149,80 +149,146 @@ async def get_topic_progress(
         "last_updated": progress.last_updated
     }
 
-@router.get("/dashboard-summary")
-async def get_dashboard_summary(
+@router.post("/init-demo-progress")
+async def init_demo_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Get comprehensive dashboard summary with knowledge gaps and stats
-    """
-    # Get all learning progress
+    """Initialize demo progress data for new users - creates sample progress for all subjects"""
+    # Define demo progress data
+    demo_data = {
+        "Math": {"correct": 7, "total": 10, "sessions": 2},
+        "Science": {"correct": 5, "total": 8, "sessions": 1},
+        "Programming": {"correct": 9, "total": 10, "sessions": 3},
+        "English": {"correct": 6, "total": 10, "sessions": 2},
+        "Aptitude": {"correct": 4, "total": 8, "sessions": 1},
+        "Study Skills": {"correct": 8, "total": 10, "sessions": 2},
+        "Fractions": {"correct": 6, "total": 8, "sessions": 1},
+        "Algebra": {"correct": 5, "total": 9, "sessions": 1},
+    }
+    
+    created = []
+    for topic, data in demo_data.items():
+        existing = db.query(LearningProgress).filter(
+            LearningProgress.student_id == current_user.id,
+            LearningProgress.concept == topic
+        ).first()
+        
+        if not existing:
+            mastery = data["correct"] / data["total"]
+            progress = LearningProgress(
+                student_id=current_user.id,
+                subject_id=1,
+                concept=topic,
+                mastery_score=mastery,
+                total_questions_attempted=data["total"],
+                correct_answers=data["correct"],
+                sessions_completed=data["sessions"]
+            )
+            db.add(progress)
+            created.append(topic)
+    
+    if created:
+        db.commit()
+    
+    return {
+        "status": "initialized",
+        "created_topics": created,
+        "message": f"Demo progress initialized for {len(created)} topics"
+    }
+
+
+@router.get("/progress/all")
+async def get_all_progress(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all progress records for the user - includes initialized entries for all subjects"""
+    # Get all existing progress
     all_progress = db.query(LearningProgress).filter(
         LearningProgress.student_id == current_user.id
     ).all()
     
-    # Calculate overall stats
-    total_questions = sum(p.total_questions_attempted for p in all_progress)
-    total_correct = sum(p.correct_answers for p in all_progress)
-    overall_accuracy = (total_correct / total_questions * 100) if total_questions > 0 else 0
+    # Create a map of existing progress by concept
+    progress_map = {p.concept: p for p in all_progress}
     
-    # Detect weak areas
-    weak_areas = []
-    for progress in all_progress:
-        if progress.mastery_score < 0.6:
-            weak_areas.append({
-                "topic": progress.concept,
-                "mastery_score": round(progress.mastery_score, 2),
-                "recommendation": f"You need more practice in {progress.concept}.",
-                "suggested_resources": CONCEPT_RECOMMENDATIONS.get(
-                    progress.concept,
-                    "Review the fundamentals and practice more problems."
-                )
+    # Define all subjects that should be tracked
+    all_subjects = [
+        "Fractions", "Algebra", "Loops", "Variables", "Functions",
+        "Motion", "Grammar", "Reasoning", "Geometry", "Statistics",
+        "Math", "Science", "Programming", "English", "Aptitude", "Study Skills"
+    ]
+    
+    # Build response including both existing and unstarted progress
+    result = []
+    for subject in all_subjects:
+        if subject in progress_map:
+            p = progress_map[subject]
+            result.append({
+                "topic": p.concept,
+                "subject_id": p.subject_id or 1,
+                "mastery_score": round(p.mastery_score, 2),
+                "sessions_completed": p.sessions_completed,
+                "total_questions": p.total_questions_attempted,
+                "correct_answers": p.correct_answers,
+                "status": "Mastered" if p.mastery_score >= 0.8 else "In Progress" if p.mastery_score > 0 else "Not started",
+                "last_updated": str(p.last_updated) if p.last_updated else None
+            })
+        else:
+            # Create unstarted entry
+            result.append({
+                "topic": subject,
+                "subject_id": 1,
+                "mastery_score": 0.0,
+                "sessions_completed": 0,
+                "total_questions": 0,
+                "correct_answers": 0,
+                "status": "Not started",
+                "last_updated": None
             })
     
-    return {
-        "user_name": current_user.name,
-        "total_quizzes_completed": len(all_progress),
-        "total_questions_attempted": total_questions,
-        "correct_answers": total_correct,
-        "overall_accuracy": round(overall_accuracy, 2),
-        "weak_areas": weak_areas,
-        "study_topics": [p.concept for p in all_progress],
-        "recommendation": (
-            "You're doing great! Keep practicing." 
-            if overall_accuracy > 70 
-            else "Focus on your weak areas to improve."
-        )
-    }
+    return result
 
-@router.post("/mark-mastered/{topic}")
-async def mark_topic_mastered(
+@router.post("/track-answer/{topic}")
+async def track_answer(
     topic: str,
+    payload: dict,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Mark a topic as mastered (90%+ accuracy)"""
+    """Track a quiz answer for a specific topic"""
+    is_correct = payload.get("is_correct", False)
+    
+    # Get or create progress
     progress = db.query(LearningProgress).filter(
         LearningProgress.student_id == current_user.id,
         LearningProgress.concept == topic
     ).first()
     
     if not progress:
-        return {"status": "error", "message": "Progress record not found"}
-    
-    if progress.mastery_score >= 0.9:
-        return {
-            "status": "success",
-            "message": f"Great! You have mastered {topic}!",
-            "topic": topic,
-            "mastery_score": round(progress.mastery_score, 2)
-        }
+        progress = LearningProgress(
+            student_id=current_user.id,
+            concept=topic,
+            mastery_score=0.0,
+            sessions_completed=1,
+            total_questions_attempted=1,
+            correct_answers=1 if is_correct else 0
+        )
+        db.add(progress)
     else:
-        return {
-            "status": "warning",
-            "message": f"You need {round((0.9 - progress.mastery_score) * 100, 1)}% more to master this topic.",
-            "topic": topic,
-            "current_score": round(progress.mastery_score, 2),
-            "required_score": 0.9
-        }
+        progress.total_questions_attempted += 1
+        if is_correct:
+            progress.correct_answers += 1
+        # Recalculate mastery score
+        progress.mastery_score = progress.correct_answers / progress.total_questions_attempted if progress.total_questions_attempted > 0 else 0
+    
+    db.commit()
+    
+    return {
+        "topic": topic,
+        "is_correct": is_correct,
+        "new_mastery_score": round(progress.mastery_score, 2),
+        "total_questions": progress.total_questions_attempted,
+        "correct_answers": progress.correct_answers
+    }
+

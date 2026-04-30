@@ -277,7 +277,7 @@ async def submit_quiz_answer(
         "correct_option": question_data["correct"],
         "selected_option": selected_option,
         "mastery_update": round(progress.mastery_score * 100, 2),
-        "message": "✓ Correct! Great job!" if is_correct else "✗ Incorrect. Review the concept.",
+        "message": "Correct! Great job!" if is_correct else "Incorrect. Review the concept.",
         "points_earned": points_earned,
         "total_points": current_user.points,
         "streak": current_user.streak

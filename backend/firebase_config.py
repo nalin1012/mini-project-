@@ -60,7 +60,7 @@ def initialize_firebase():
         else:
             firebase_admin.initialize_app(creds)
 
-        logger.info("✓ Firebase Admin SDK initialized successfully")
+        logger.info("Firebase Admin SDK initialized successfully")
         return True
     except Exception as e:
         logger.warning("Firebase initialization warning: %s", str(e))

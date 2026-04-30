@@ -113,3 +113,38 @@ class WeakArea(Base):
     last_tested = Column(DateTime, default=datetime.utcnow)
     
     student = relationship("User", back_populates="weak_areas")
+
+
+class ChapterProgress(Base):
+    __tablename__ = 'chapter_progress'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    subject_id = Column(String, nullable=False, index=True)
+    chapter_id = Column(String, nullable=False, index=True)
+    status = Column(String, default="locked")  # locked, in_progress, done
+    percent_complete = Column(Integer, default=0)
+    last_updated = Column(DateTime, default=datetime.utcnow)
+
+
+class SmartNote(Base):
+    __tablename__ = 'smart_notes'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    subject = Column(String, nullable=True)  # Math, Science, Programming, English, Aptitude, Study Skills
+    title = Column(String, nullable=False)
+    source_type = Column(String, default="text")  # pdf, text
+    raw_content = Column(Text, nullable=False)
+    bullet_notes = Column(JSON, nullable=True)
+    flashcards = Column(JSON, nullable=True)
+    revision_sheet = Column(Text, nullable=True)
+    revised_notes = Column(JSON, nullable=True)  # For revision tracking
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class TutorChat(Base):
+    __tablename__ = 'tutor_chats'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    session_id = Column(String, nullable=False, index=True)
+    messages = Column(JSON, nullable=False)
+    created_at = Column(Integer, nullable=False)

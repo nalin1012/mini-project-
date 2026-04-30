@@ -9,14 +9,23 @@ import Link from "next/link"
 interface QuizQuestion {
   question: string
   options: string[]
-  difficulty: string
+  difficulty?: string
+  correct_option?: number
+  explanation?: string
 }
 
 interface QuizData {
   topic: string
-  difficulty: string
+  difficulty?: string
   total_questions: number
   questions: QuizQuestion[]
+}
+
+interface SmartQuizData {
+  title: string
+  subject?: string
+  questions: any[]
+  noteId?: number
 }
 
 interface SubmitResult {
@@ -24,11 +33,11 @@ interface SubmitResult {
   explanation: string
   correct_option: number
   selected_option: number
-  mastery_update: number
+  mastery_update?: number
   message: string
-  points_earned: number
-  total_points: number
-  streak: number
+  points_earned?: number
+  total_points?: number
+  streak?: number
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
@@ -47,6 +56,8 @@ export default function QuizPage() {
   const [mastery, setMastery] = useState(0)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
   const [lastResult, setLastResult] = useState<SubmitResult | null>(null)
+  const [isSmartQuiz, setIsSmartQuiz] = useState(false)
+  const [smartQuizData, setSmartQuizData] = useState<SmartQuizData | null>(null)
 
   // Timer effect
   useEffect(() => {
@@ -58,6 +69,51 @@ export default function QuizPage() {
     
     return () => clearInterval(timer)
   }, [stage, loading])
+
+  // Check for smart quiz data from notes
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    
+    const smartData = localStorage.getItem("smart_quiz_data")
+    if (smartData) {
+      try {
+        const parsed: SmartQuizData = JSON.parse(smartData)
+        setSmartQuizData(parsed)
+        setIsSmartQuiz(true)
+        setSelectedTopic(parsed.subject || parsed.title)
+        
+        // Prepare quiz data from smart notes
+        const questions = (parsed.questions || []).map((q: any) => ({
+          question: q.question || "",
+          options: q.options || [],
+          correct_option: q.correct_option ?? 0,
+          explanation: q.explanation || "",
+          difficulty: "medium",
+        }))
+        
+        if (questions.length > 0) {
+          const qd: QuizData = {
+            topic: parsed.subject || parsed.title,
+            difficulty: "medium",
+            total_questions: questions.length,
+            questions: questions,
+          }
+          setQuizData(qd)
+          setCurrentQuestion(0)
+          setResults([])
+          setSelectedAnswer(null)
+          setTimeLeft(Math.min(questions.length * 2 * 60, 30 * 60)) // 2 min per question, max 30 min
+          setQuestionStartTime(Date.now())
+          setStage("quiz")
+        }
+        
+        // Clear from localStorage
+        localStorage.removeItem("smart_quiz_data")
+      } catch (e) {
+        console.error("Failed to parse smart quiz data:", e)
+      }
+    }
+  }, [])
 
   const startQuiz = async () => {
     if (!selectedTopic || !selectedDifficulty) return
@@ -103,31 +159,53 @@ export default function QuizPage() {
 
     setLoading(true)
     try {
-      const token = localStorage.getItem("access_token")
-      const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000)
-
-      const response = await fetch(`${API_BASE_URL}/api/quiz/submit-answer`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          topic: selectedTopic,
-          question_index: currentQuestion,
+      if (isSmartQuiz) {
+        // For smart quiz from notes, check answer locally
+        const currentQ = quizData.questions[currentQuestion]
+        const isCorrect = selectedAnswer === (currentQ.correct_option ?? 0)
+        
+        const result: SubmitResult = {
+          is_correct: isCorrect,
+          explanation: currentQ.explanation || "",
+          correct_option: currentQ.correct_option ?? 0,
           selected_option: selectedAnswer,
-          time_taken: timeTaken,
-        }),
-      })
+          message: isCorrect ? "Correct! 🎉" : "Incorrect. Review the explanation.",
+        }
+        
+        const newResults = [...results, result]
+        setResults(newResults)
+        setLastResult(result)
+        setStage("feedback")
+      } else {
+        // For regular quiz, submit to backend
+        const token = localStorage.getItem("access_token")
+        const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000)
 
-      if (!response.ok) throw new Error("Failed to submit answer")
+        const response = await fetch(`${API_BASE_URL}/api/quiz/submit-answer`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            topic: selectedTopic,
+            question_index: currentQuestion,
+            selected_option: selectedAnswer,
+            time_taken: timeTaken,
+          }),
+        })
 
-      const result: SubmitResult = await response.json()
-      const newResults = [...results, result]
-      setResults(newResults)
-      setMastery(result.mastery_update)
-      setLastResult(result)
-      setStage("feedback")
+        if (!response.ok) throw new Error("Failed to submit answer")
+
+        const result: SubmitResult = await response.json()
+        const newResults = [...results, result]
+        setResults(newResults)
+        if (result.mastery_update !== undefined) {
+          setMastery(result.mastery_update)
+        }
+        setLastResult(result)
+        setStage("feedback")
+      }
     } catch (err) {
       console.error("Error submitting answer:", err)
       alert("Failed to submit answer. Please try again.")
