@@ -31,7 +31,14 @@ SUBJECT_CONTENT = {
                     {"q": "Simplify 4/8", "a": "1/2 (divide both by 4)"},
                     {"q": "Convert 0.75 to fraction", "a": "3/4 (0.75 = 75/100 = 3/4)"},
                     {"q": "What is 2/3 × 3/5?", "a": "6/15 = 2/5"},
-                    {"q": "3/4 ÷ 1/2 = ?", "a": "3/4 × 2/1 = 6/4 = 3/2 = 1.5"}
+                    {"q": "3/4 ÷ 1/2 = ?", "a": "3/4 × 2/1 = 6/4 = 3/2 = 1.5"},
+                    {"q": "Simplify 15/20", "a": "3/4 (GCD is 5)"},
+                    {"q": "1/3 + 1/3 + 1/3 = ?", "a": "1 (3/3)"},
+                    {"q": "What is 5/6 - 1/6?", "a": "4/6 = 2/3"},
+                    {"q": "Convert 1/5 to decimal", "a": "0.2"},
+                    {"q": "What is 1/4 of 20?", "a": "5 (multiply 1/4 × 20 = 5)"},
+                    {"q": "Simplify 9/12", "a": "3/4 (divide by 3)"},
+                    {"q": "What is 2/5 + 1/2?", "a": "9/10 (4/10 + 5/10)"}
                 ],
                 "common_mistakes": ["Forgetting to find common denominator when adding", "Cross-multiplying instead of cross-canceling", "Adding denominators instead of keeping same"]
             },
@@ -55,7 +62,14 @@ SUBJECT_CONTENT = {
                     {"q": "Solve: 2x = 16", "a": "x = 8 (divide both sides by 2)"},
                     {"q": "Expand: 2(x + 3)", "a": "2x + 6"},
                     {"q": "Factor: x² + 5x + 6", "a": "(x + 2)(x + 3)"},
-                    {"q": "Solve: 3x - 7 = 11", "a": "x = 6 (add 7, then divide by 3)"}
+                    {"q": "Solve: 3x - 7 = 11", "a": "x = 6 (add 7, then divide by 3)"},
+                    {"q": "Combine: 2x + 3x", "a": "5x (like terms)"},
+                    {"q": "Solve: x/2 = 5", "a": "x = 10 (multiply both sides by 2)"},
+                    {"q": "Expand: -3(2x - 1)", "a": "-6x + 3"},
+                    {"q": "Solve: 4x + 2 = 18", "a": "x = 4 (subtract 2, divide by 4)"},
+                    {"q": "Factor: 2x² + 4x", "a": "2x(x + 2)"},
+                    {"q": "Solve: x - 3 = 7", "a": "x = 10 (add 3 to both sides)"},
+                    {"q": "What is slope in y = 2x + 3?", "a": "2 (coefficient of x)"}
                 ],
                 "common_mistakes": ["Forgetting to do same operation on both sides", "Not distributing correctly", "Sign errors when moving terms"]
             },
@@ -81,7 +95,14 @@ SUBJECT_CONTENT = {
                     {"q": "Area of triangle with base 6 and height 4", "a": "12 (1/2 × 6 × 4)"},
                     {"q": "Circumference of circle with radius 5", "a": "10π ≈ 31.4"},
                     {"q": "Pythagorean theorem formula", "a": "a² + b² = c² (for right triangles)"},
-                    {"q": "Area of circle with radius 3", "a": "9π ≈ 28.27"}
+                    {"q": "Area of circle with radius 3", "a": "9π ≈ 28.27"},
+                    {"q": "Perimeter of square with side 4cm", "a": "16cm (4 × 4)"},
+                    {"q": "Volume of cube with side 5", "a": "125 (5³)"},
+                    {"q": "What are angles in a triangle?", "a": "Sum to 180°"},
+                    {"q": "Diameter if radius is 7", "a": "14 (2 × radius)"},
+                    {"q": "Area of trapezoid formula", "a": "1/2 × (b₁ + b₂) × h"},
+                    {"q": "What is a right angle?", "a": "90 degrees"},
+                    {"q": "Pentagon has how many sides?", "a": "5"}
                 ],
                 "common_mistakes": ["Confusing area and perimeter", "Forgetting π in circle calculations", "Not using correct formulas for different shapes"]
             }
@@ -113,7 +134,14 @@ SUBJECT_CONTENT = {
                     {"q": "What is velocity?", "a": "Speed with direction (vector quantity)"},
                     {"q": "Newton's first law", "a": "Object in motion stays in motion unless acted upon by force"},
                     {"q": "Calculate force if m=5kg, a=10m/s²", "a": "F = 50 N (5 × 10)"},
-                    {"q": "What is acceleration?", "a": "Rate of change of velocity"}
+                    {"q": "What is acceleration?", "a": "Rate of change of velocity"},
+                    {"q": "SI unit of force", "a": "Newton (N)"},
+                    {"q": "What is kinetic energy?", "a": "Energy of motion (1/2 mv²)"},
+                    {"q": "Newton's second law formula", "a": "F = ma"},
+                    {"q": "Newton's third law", "a": "Every action has equal opposite reaction"},
+                    {"q": "What is weight?", "a": "Force of gravity on object (mass × g)"},
+                    {"q": "Speed vs velocity difference", "a": "Speed has no direction, velocity does"},
+                    {"q": "Potential energy formula", "a": "PE = mgh (mass × gravity × height)"}
                 ],
                 "common_mistakes": ["Confusing speed and velocity", "Forgetting that acceleration can be negative", "Using wrong formula for motion problems"]
             },
@@ -139,7 +167,14 @@ SUBJECT_CONTENT = {
                     {"q": "What is an atom?", "a": "Smallest unit of an element that retains its properties"},
                     {"q": "Acid or base: pH 3", "a": "Acid (pH < 7)"},
                     {"q": "Combustion of methane", "a": "CH₄ + 2O₂ → CO₂ + 2H₂O"},
-                    {"q": "What is oxidation?", "a": "Loss of electrons or gain of oxygen"}
+                    {"q": "What is oxidation?", "a": "Loss of electrons or gain of oxygen"},
+                    {"q": "Parts of an atom", "a": "Protons (positive), neutrons (neutral), electrons (negative)"},
+                    {"q": "What is NaCl?", "a": "Sodium chloride (table salt)"},
+                    {"q": "Acid or base: pH 11", "a": "Base (pH > 7)"},
+                    {"q": "What is reduction?", "a": "Gain of electrons or loss of oxygen"},
+                    {"q": "Name CO₂", "a": "Carbon dioxide"},
+                    {"q": "What is pH 7?", "a": "Neutral (neither acidic nor basic)"},
+                    {"q": "What is a chemical reaction?", "a": "Rearrangement of atoms to form new substances"}
                 ],
                 "common_mistakes": ["Mixing up acids and bases", "Not balancing chemical equations", "Forgetting units in calculations"]
             },
@@ -163,7 +198,14 @@ SUBJECT_CONTENT = {
                     {"q": "What is photosynthesis?", "a": "Process where plants convert light energy to chemical energy"},
                     {"q": "DNA stands for?", "a": "Deoxyribonucleic acid"},
                     {"q": "What is a gene?", "a": "Section of DNA that codes for a protein"},
-                    {"q": "Cell organelle that controls cell", "a": "Nucleus"}
+                    {"q": "Cell organelle that controls cell", "a": "Nucleus"},
+                    {"q": "What does chloroplast do?", "a": "Photosynthesis - converts light to chemical energy"},
+                    {"q": "What is cellular respiration?", "a": "Breakdown of glucose to produce ATP (energy)"},
+                    {"q": "What is mitosis?", "a": "Cell division producing 2 identical daughter cells"},
+                    {"q": "What is meiosis?", "a": "Cell division producing 4 sex cells (gametes)"},
+                    {"q": "What do ribosomes do?", "a": "Manufacture proteins based on DNA instructions"},
+                    {"q": "Three base pairs code for?", "a": "One amino acid (codon)"},
+                    {"q": "What is evolution?", "a": "Change in living things through natural selection"}
                 ],
                 "common_mistakes": ["Confusing photosynthesis and respiration", "Not understanding DNA-protein relationship", "Forgetting plants also respire"]
             }
@@ -195,7 +237,14 @@ SUBJECT_CONTENT = {
                     {"q": "What does break do?", "a": "Exits the loop immediately"},
                     {"q": "What does continue do?", "a": "Skips current iteration, goes to next"},
                     {"q": "for i in range(1,4): print(i)", "a": "1\\n2\\n3 (start=1, stop=4, not inclusive)"},
-                    {"q": "How to loop 5 times?", "a": "for i in range(5): or for i in range(0,5):"}
+                    {"q": "How to loop 5 times?", "a": "for i in range(5): or for i in range(0,5):"},
+                    {"q": "What is infinite loop?", "a": "Loop that never ends (while True:)"},
+                    {"q": "for i in range(2, 8, 2)", "a": "Prints 2, 4, 6 (start=2, stop=8, step=2)"},
+                    {"q": "for item in [1,2,3]", "a": "Iterates through list items"},
+                    {"q": "Nested loop definition", "a": "Loop inside another loop"},
+                    {"q": "while condition - when stops?", "a": "When condition becomes False"},
+                    {"q": "What loop do-while always does?", "a": "Executes at least once before checking condition"},
+                    {"q": "Purpose of loops", "a": "Repeat code without rewriting it"}
                 ],
                 "common_mistakes": ["Forgetting range() goes 0 to n-1, not including n", "Infinite loops with while", "Off-by-one errors in ranges"]
             },
@@ -221,7 +270,14 @@ SUBJECT_CONTENT = {
                     {"q": "Which is valid variable name?", "a": "user_age (not '2user' or 'user age')"},
                     {"q": "int vs float difference", "a": "int is whole number, float has decimals"},
                     {"q": "What is x after: x=5; x=x+2", "a": "x = 7"},
-                    {"q": "String vs integer", "a": "'5' is string, 5 is integer"}
+                    {"q": "String vs integer", "a": "'5' is string, 5 is integer"},
+                    {"q": "Boolean data type holds", "a": "True or False"},
+                    {"q": "Variable naming rules", "a": "Start with letter/underscore, no spaces, case-sensitive"},
+                    {"q": "Is 'class' a valid variable name?", "a": "No - it's a Python keyword"},
+                    {"q": "Type of: age = 25", "a": "Integer (int)"},
+                    {"q": "Type of: name = 'Alex'", "a": "String (str)"},
+                    {"q": "Type of: is_active = True", "a": "Boolean (bool)"},
+                    {"q": "What is scope?", "a": "Region where a variable is accessible"}
                 ],
                 "common_mistakes": ["Using variable before declaring", "Forgetting quotes for strings", "Case sensitivity issues"]
             },
@@ -247,7 +303,14 @@ SUBJECT_CONTENT = {
                     {"q": "What does return do?", "a": "Sends result back to caller and ends function"},
                     {"q": "Parameter vs argument", "a": "Parameter in definition, argument in call"},
                     {"q": "def add(a,b): return a+b; print(add(3,4))", "a": "Prints 7"},
-                    {"q": "Local vs global variable", "a": "Local inside function only, global accessible everywhere"}
+                    {"q": "Local vs global variable", "a": "Local inside function only, global accessible everywhere"},
+                    {"q": "Function without return sends", "a": "None"},
+                    {"q": "Multiple return values?", "a": "Yes, use tuple: return x, y"},
+                    {"q": "Can function call itself?", "a": "Yes - recursion"},
+                    {"q": "Default parameter: def greet(name='Friend')", "a": "If no argument, uses 'Friend'"},
+                    {"q": "Function syntax requirement", "a": "Colon after def line"},
+                    {"q": "What is recursion?", "a": "Function calling itself (must have base case)"},
+                    {"q": "Why use functions?", "a": "Reusability, organize code, readability"}
                 ],
                 "common_mistakes": ["Forgetting colon after def", "Not returning value when needed", "Calling function before defining it"]
             }
@@ -279,7 +342,14 @@ SUBJECT_CONTENT = {
                     {"q": "What is a noun?", "a": "A person, place, thing, or idea (dog, tree, happiness)"},
                     {"q": "What is a verb?", "a": "Action word or state of being (run, is, think)"},
                     {"q": "Tense of: 'I have finished'", "a": "Present perfect (past action relevant now)"},
-                    {"q": "Correct: 'between you and I' or 'between you and me'?", "a": "'between you and me' (me is object of preposition)"}
+                    {"q": "Correct: 'between you and I' or 'between you and me'?", "a": "'between you and me' (me is object of preposition)"},
+                    {"q": "What is an adjective?", "a": "Word that describes a noun (big, red, happy)"},
+                    {"q": "What is an adverb?", "a": "Word that describes verb/adjective (quickly, very)"},
+                    {"q": "Simple past of 'go'", "a": "went (irregular verb)"},
+                    {"q": "Collective noun example", "a": "Herd, flock, group (singular noun for many)"},
+                    {"q": "What is a preposition?", "a": "Shows relationship (in, on, under, between)"},
+                    {"q": "Subject-verb agreement means", "a": "Subject and verb must match in number"},
+                    {"q": "What is a clause?", "a": "Group of words with subject and verb"}
                 ],
                 "common_mistakes": ["Subject-verb disagreement", "Wrong tense use", "Comma splices", "Misplaced modifiers"]
             },
@@ -305,7 +375,14 @@ SUBJECT_CONTENT = {
                     {"q": "What is an inference?", "a": "Logical conclusion based on facts and evidence"},
                     {"q": "Fact or Opinion: 'Cats are animals'", "a": "Fact (can be proven)"},
                     {"q": "Author's tone = ?", "a": "The attitude or feeling the author expresses"},
-                    {"q": "Context clues help", "a": "Understand word meanings from surrounding text"}
+                    {"q": "Context clues help", "a": "Understand word meanings from surrounding text"},
+                    {"q": "What are supporting details?", "a": "Facts that explain and support the main idea"},
+                    {"q": "What is summarizing?", "a": "Briefly stating main points in your own words"},
+                    {"q": "Author's purpose could be", "a": "Entertain, inform, persuade, or educate"},
+                    {"q": "What is author's bias?", "a": "Author's preference or prejudice"},
+                    {"q": "Distinguish fact from opinion:", "a": "Fact: provable, Opinion: belief or judgment"},
+                    {"q": "What is text structure?", "a": "How author organizes ideas (sequence, cause-effect)"},
+                    {"q": "What is theme?", "a": "Central message or lesson of the story"}
                 ],
                 "common_mistakes": ["Confusing main idea with details", "Making assumptions without evidence", "Ignoring context"]
             },
@@ -331,7 +408,14 @@ SUBJECT_CONTENT = {
                     {"q": "Antonym for 'happy'", "a": "Sad, unhappy, miserable"},
                     {"q": "Prefix 'un-' means", "a": "Not or opposite (unhappy, unclear)"},
                     {"q": "Suffix '-tion' indicates", "a": "An action or state (creation, attention)"},
-                    {"q": "What is 'benevolent'?", "a": "Kind, generous, charitable"}
+                    {"q": "What is 'benevolent'?", "a": "Kind, generous, charitable"},
+                    {"q": "Prefix 're-' means", "a": "Again or back (redo, return)"},
+                    {"q": "Suffix '-ing' shows", "a": "Action in progress (running, jumping)"},
+                    {"q": "Prefix 'dis-' means", "a": "Not, opposite, or reverse (disagree, dislike)"},
+                    {"q": "Suffix '-ful' means", "a": "Full of (beautiful, helpful, joyful)"},
+                    {"q": "Suffix '-ous' means", "a": "Full of or characterized by (dangerous, famous)"},
+                    {"q": "Root 'bio' means", "a": "Life (biology, biography)"},
+                    {"q": "Root 'port' means", "a": "Carry (transport, import, export)"}
                 ],
                 "common_mistakes": ["Confusing similar-looking words", "Not learning word roots", "Ignoring context when guessing meaning"]
             }
@@ -362,7 +446,14 @@ SUBJECT_CONTENT = {
                     {"q": "2 is even, 4 is even, 6 is even. Pattern?", "a": "All positive even numbers (inductive reasoning)"},
                     {"q": "Eye is to see as Ear is to ?", "a": "Hear (analogies find relationships)"},
                     {"q": "Find next: 1,4,9,16,?", "a": "25 (pattern: 1²,2²,3²,4²,5²)"},
-                    {"q": "If A>B and B>C, then A>C. This is?", "a": "Logical deduction (transitive property)"}
+                    {"q": "If A>B and B>C, then A>C. This is?", "a": "Logical deduction (transitive property)"},
+                    {"q": "Find next: 2,4,6,8,?", "a": "10 (arithmetic sequence: +2)"},
+                    {"q": "Deduction vs Induction", "a": "Deduction: specific from general. Induction: general from specific"},
+                    {"q": "What is a syllogism?", "a": "Three-part logical argument (2 premises, 1 conclusion)"},
+                    {"q": "Hand is to glove as Foot is to", "a": "Shoe (function analogy)"},
+                    {"q": "Find next: 1,1,2,3,5,8,?", "a": "13 (Fibonacci sequence: each = sum of previous two)"},
+                    {"q": "What is lateral thinking?", "a": "Solving problems from fresh angle"},
+                    {"q": "Pattern: 3,6,12,24,?", "a": "48 (each multiplies by 2)"}
                 ],
                 "common_mistakes": ["Assuming without verifying", "Mixing up deductive and inductive", "Not identifying the correct relationship"]
             },
@@ -384,11 +475,18 @@ SUBJECT_CONTENT = {
                 ],
                 "real_life": "Debates, programming logic, legal arguments, critical analysis",
                 "flashcards": [
-                    {"q": "If it rains, grass is wet. Grass is wet. Does it rained?", "a": "Not necessarily (logical fallacy - affirming consequent)"},
+                    {"q": "If it rains, grass is wet. Grass is wet. Does it rain?", "a": "Not necessarily (logical fallacy - affirming consequent)"},
                     {"q": "Valid or invalid: All birds fly. Penguins are birds. Penguins fly.", "a": "Invalid - penguins don't fly (logical form valid but false premise)"},
                     {"q": "What is a fallacy?", "a": "Logical error in reasoning or invalid argument"},
                     {"q": "AND operator means", "a": "Both conditions must be true"},
-                    {"q": "OR operator means", "a": "At least one condition must be true"}
+                    {"q": "OR operator means", "a": "At least one condition must be true"},
+                    {"q": "NOT operator means", "a": "Negation or opposite"},
+                    {"q": "Correlation vs Causation", "a": "Correlation: happen together. Causation: one causes other"},
+                    {"q": "Ad hominem fallacy is", "a": "Attacking person instead of their argument"},
+                    {"q": "Begging the question means", "a": "Assuming conclusion in premise (circular reasoning)"},
+                    {"q": "Straw man fallacy", "a": "Misrepresenting opponent's argument"},
+                    {"q": "What is a premise?", "a": "Given fact or statement in an argument"},
+                    {"q": "Modus ponens rule", "a": "If A implies B and A is true, then B is true"}
                 ],
                 "common_mistakes": ["Confusing correlation with causation", "Circular reasoning", "Ad hominem attacks"]
             },
@@ -414,7 +512,14 @@ SUBJECT_CONTENT = {
                     {"q": "If direct approach doesn't work, try?", "a": "Work backwards, try examples, draw diagram"},
                     {"q": "What helps verify solution?", "a": "Check by substituting back or testing"},
                     {"q": "Complex problem strategy", "a": "Break into smaller, manageable parts"},
-                    {"q": "After solving, do?", "a": "Review solution for errors and logic"}
+                    {"q": "After solving, do?", "a": "Review solution for errors and logic"},
+                    {"q": "What is brute force?", "a": "Try all possibilities until finding answer"},
+                    {"q": "What is working backwards?", "a": "Start from desired result, work to initial state"},
+                    {"q": "Guess and check strategy", "a": "Make reasonable guess, test, refine"},
+                    {"q": "What is trial and error?", "a": "Trying different solutions until success"},
+                    {"q": "What is pattern recognition?", "a": "Identifying similarities to solve problems"},
+                    {"q": "Visualization helps by", "a": "Creating mental or physical picture of problem"},
+                    {"q": "Key to complex problems", "a": "Divide into simpler subproblems"}
                 ],
                 "common_mistakes": ["Jumping to solving without understanding", "Not checking work", "Giving up too quickly"]
             }
