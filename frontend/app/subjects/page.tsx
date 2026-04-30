@@ -6,6 +6,8 @@ import { BookOpen, Brain, Calculator, Code2, FlaskConical, Languages } from "luc
 import { DashboardNavbar } from "@/components/dashboard-navbar"
 import { Button } from "@/components/ui/button"
 
+// Subject definitions for the learning platform
+// Each subject has a title, description, icon, and difficulty level
 const subjects = [
   {
     title: "Math",
