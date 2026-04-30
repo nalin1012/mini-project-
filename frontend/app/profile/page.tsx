@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://192.168.0.131:8001"
 
+// User profile data from backend
 interface UserProfile {
   id: number
   email: string
