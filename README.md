@@ -39,6 +39,7 @@ An intelligent full-stack EdTech system that detects knowledge gaps and delivers
 - ✅ Improved error handling in authentication
 - ✅ Admin authorization security enhancements
 - ✅ Caching optimization for user endpoints
+- ✅ Expanded quiz bank with explanations and difficulty levels
 
 ---
 
