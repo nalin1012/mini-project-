@@ -23,6 +23,17 @@ load_dotenv()
 # Add backend directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# Get environment variables
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+# Parse CORS origins from environment variable
+cors_origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+cors_origins = [url.strip() for url in cors_origins_str.split(",")]
+
+logger.info(f"Environment: {ENVIRONMENT}")
+logger.info(f"Allowed CORS origins: {cors_origins}")
+
 # Import routers
 from auth import router as auth_router
 from quiz import router as quiz_router
@@ -42,17 +53,17 @@ app = FastAPI(
     title="AI Personalized Learning Platform API",
     description="Backend API for AI-driven adaptive learning system with knowledge gap detection",
     version="2.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    docs_url="/api/docs" if ENVIRONMENT == "development" else None,
+    redoc_url="/api/redoc" if ENVIRONMENT == "development" else None
 )
 
 # CORS middleware - enable frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to specific frontend URL in production
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Initialize database

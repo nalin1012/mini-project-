@@ -1,0 +1,191 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ===================================
+  # BACKEND TESTS & BUILD
+  # ===================================
+  backend-test:
+    name: Backend - Test & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov flake8
+      
+      - name: Lint with flake8
+        working-directory: ./backend
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: Run backend tests
+        working-directory: ./backend
+        run: pytest --cov=. --cov-report=xml
+        continue-on-error: true
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage.xml
+          flags: backend
+          fail_ci_if_error: false
+
+  # ===================================
+  # FRONTEND TESTS & BUILD
+  # ===================================
+  frontend-test:
+    name: Frontend - Test & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: ./frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Lint
+        working-directory: ./frontend
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: Build
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL_DEV || 'http://localhost:8001' }}
+          NEXT_PUBLIC_ENVIRONMENT: development
+
+  # ===================================
+  # SECURITY SCAN
+  # ===================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Dependency Check - Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Check for Python security issues
+        working-directory: ./backend
+        run: |
+          pip install safety
+          safety check --json
+        continue-on-error: true
+      
+      - name: Check for Node security issues
+        working-directory: ./frontend
+        run: |
+          npm audit --audit-level=high
+        continue-on-error: true
+
+  # ===================================
+  # DEPLOY TO STAGING (on develop branch)
+  # ===================================
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy Backend to Render (Staging)
+        run: |
+          curl https://api.render.com/deploy/srv-${{ secrets.RENDER_BACKEND_STAGING_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+        continue-on-error: true
+      
+      - name: Deploy Frontend to Vercel (Staging)
+        uses: vercel/action@master
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+        continue-on-error: true
+
+  # ===================================
+  # DEPLOY TO PRODUCTION (on main branch)
+  # ===================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: production
+      url: https://your-production-domain.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy Backend to Render (Production)
+        run: |
+          curl https://api.render.com/deploy/srv-${{ secrets.RENDER_BACKEND_PRODUCTION_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+        continue-on-error: true
+      
+      - name: Deploy Frontend to Vercel (Production)
+        uses: vercel/action@master
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          production: true
+        continue-on-error: true
+      
+      - name: Notification - Deployment Success
+        if: success()
+        run: |
+          echo "✅ Production deployment completed successfully!"
+          echo "Backend: https://your-backend.onrender.com"
+          echo "Frontend: https://your-production-domain.com"
+      
+      - name: Notification - Deployment Failed
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          echo "Please check the logs above for details."

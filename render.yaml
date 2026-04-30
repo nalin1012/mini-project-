@@ -1,0 +1,49 @@
+# Render.com Backend Deployment Configuration
+# This file configures how your FastAPI backend is deployed on Render
+
+services:
+  - type: web
+    name: ai-learning-backend
+    env: python
+    region: oregon  # Change to your preferred region
+    plan: free  # free, starter, standard-1, etc.
+    
+    # Build configuration
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    
+    startCommand: |
+      uvicorn main:app --host 0.0.0.0 --port 8000
+    
+    # Environment variables
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Set to true if using Render's PostgreSQL
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://your-frontend-domain.com,https://www.your-frontend-domain.com
+      - key: FRONTEND_URL
+        value: https://your-frontend-domain.com
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: FIREBASE_DATABASE_URL
+        sync: false
+    
+    # Root directory
+    rootDir: backend
+    
+    # Auto deploy on push to main
+    autoDeploy: true
+    
+    # Timeout settings
+    maxShutdownDelay: 30
+
+# Optional: PostgreSQL Database
+# databases:
+#   - name: learning_db
+#     plan: free
+#     region: oregon
