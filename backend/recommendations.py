@@ -42,7 +42,8 @@ def analyze(
         )
         return result
     except Exception as e:
-        # Fallback if ML model not available
+        # Fallback if ML model not available or fails
+        # Provides basic mastery calculation without ML analysis
         mastery = correct / total
         return {
             "mastery_score": mastery,
